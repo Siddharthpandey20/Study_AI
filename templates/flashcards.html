@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Flashcards - StudyAI</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/feature-pages.css">
+</head>
+
+<body>
+    <!-- Feature Page Navbar -->
+    <header class="feature-header">
+        <nav class="feature-nav">
+            <a href="/" class="nav-home">
+                <i class="fas fa-home"></i> Home
+            </a>
+
+            <div class="feature-tabs">
+                <a href="flashcards.html" class="feature-tab active">
+                    <i class="fas fa-brain"></i> Flashcards
+                </a>
+                <a href="mindmap.html" class="feature-tab">
+                    <i class="fas fa-project-diagram"></i> Mind Map
+                </a>
+                <a href="learning-path.html" class="feature-tab">
+                    <i class="fas fa-route"></i> Learning Path
+                </a>
+                <a href="sticky-notes.html" class="feature-tab">
+                    <i class="fas fa-sticky-note"></i> Sticky Notes
+                </a>
+                <a href="exam-booster.html" class="feature-tab">
+                    <i class="fas fa-trophy"></i> Exam Booster
+                </a>
+                <a href="youtube-summarizer.html" class="feature-tab">
+                    <i class="fab fa-youtube"></i> YouTube
+                </a>
+                
+            </div>
+
+            <div class="nav-controls">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="settings-btn">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="feature-main">
+        <div class="feature-container">
+            <div class="feature-title-section">
+                <h1><i class="fas fa-brain"></i> Smart Flashcards Generator</h1>
+                <p>Upload your study materials and generate interactive flashcards with AI-powered difficulty levels</p>
+            </div>
+
+            <!-- Drag and Drop Upload Area -->
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-content">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Drop your files here</h3>
+                    <p>or <button class="browse-upload-btn" onclick="document.getElementById('fileInput').click()">BROWSE TO UPLOAD</button></p>
+                    <div class="supported-formats">
+                        <span class="format-tag">PDF</span>
+                        <span class="format-tag">DOCX</span>
+                        <span class="format-tag">TXT</span>
+                        <span class="format-tag">MD</span>
+                    </div>
+                </div>
+                <input type="file" id="fileInput" multiple accept=".pdf,.docx,.txt,.md" style="display: none;">
+            </div>
+
+            <!-- Text Input Alternative -->
+            <div class="text-input-section">
+                <h3><i class="fas fa-keyboard"></i> Or paste your text content</h3>
+                <textarea id="textContent" placeholder="Paste your study material here..." rows="8"></textarea>
+            </div>
+
+            <!-- Generate Button -->
+            <div class="generate-section">
+                <button id="generateFlashcardsBtn" class="generate-btn">
+                    <i class="fas fa-magic"></i>
+                    Generate Flashcards
+                </button>
+            </div>
+
+            <!-- Results Area -->
+            <div class="results-area" id="resultsArea" style="display: none;">
+                <!-- Results will be dynamically loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <script src="static/js/script.js"></script>
+
+    <script>
+        // Global variables for flashcards
+        let uploadedContent = null;
+        let isGenerating = false;
+        let currentFlashcards = [];
+
+        // Initialize when document loads
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log("Initializing flashcard functionality...");
+
+            const uploadZone = document.getElementById('uploadZone');
+            const fileInput = document.getElementById('fileInput');
+            const textContent = document.getElementById('textContent');
+            const generateBtn = document.getElementById('generateFlashcardsBtn');
+
+            // File input change handler
+            fileInput.addEventListener('change', handleFileSelect);
+
+            // Drag and drop handlers
+            uploadZone.addEventListener('dragover', handleDragOver);
+            uploadZone.addEventListener('dragleave', handleDragLeave);
+            uploadZone.addEventListener('drop', handleFileDrop);
+
+            // Generate button click handler
+            generateBtn.addEventListener('click', generateFlashcards);
+
+            // Text content change handler
+            textContent.addEventListener('input', function () {
+                if (uploadedContent && uploadedContent instanceof File) {
+                    uploadedContent = null; // Clear file when text is entered
+                    resetUpload();
+                }
+            });
+        });
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('uploadZone').classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('uploadZone').classList.remove('drag-over');
+        }
+
+        function handleFileDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('uploadZone').classList.remove('drag-over');
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                processFile(file);
+            }
+        }
+
+        function processFile(file) {
+            const uploadZone = document.getElementById('uploadZone');
+            const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'text/markdown'];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+
+            // More flexible file type checking
+            if (!allowedTypes.includes(file.type) && !['pdf', 'docx', 'txt', 'md'].includes(fileExtension)) {
+                showError('Please upload a PDF, DOCX, TXT, or MD file.');
+                return;
+            }
+
+            if (file.size > 16 * 1024 * 1024) { // 16MB limit
+                showError('File size must be less than 16MB.');
+                return;
+            }
+
+            // Store uploaded file
+            uploadedContent = file;
+            document.getElementById('textContent').value = ''; // Clear text area
+
+            // Update the upload zone UI to show success state
+            uploadZone.innerHTML = `
+                <div class="upload-content">
+                    <div class="upload-success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3>File uploaded successfully!</h3>
+                    <p><strong>${file.name}</strong> (${formatFileSize(file.size)})</p>
+                    <button class="upload-different-btn" onclick="resetUpload()">UPLOAD DIFFERENT FILE<span class="bolt">⚡</span></button>
+                </div>
+            `;
+
+            // Log to verify upload was processed
+            console.log("File processed successfully:", file.name);
+        }
+
+        function resetUpload() {
+            const uploadZone = document.getElementById('uploadZone');
+            uploadZone.innerHTML = `
+        <div class="upload-content">
+            <div class="upload-icon">
+                <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+            <h3>Drop your files here</h3>
+            <p>or <button class="browse-upload-btn" onclick="document.getElementById('fileInput').click()">BROWSE TO UPLOAD</button></p>
+            <div class="supported-formats">
+                <span class="format-tag">PDF</span>
+                <span class="format-tag">DOCX</span>
+                <span class="format-tag">TXT</span>
+                <span class="format-tag">MD</span>
+            </div>
+        </div>
+    `;
+
+            document.getElementById('fileInput').value = '';
+            uploadedContent = null;
+        }
+
+        async function generateFlashcards() {
+            console.log("Generate flashcards button clicked");
+
+            if (isGenerating) {
+                console.log("Already generating, please wait...");
+                return;
+            }
+
+            const generateBtn = document.getElementById('generateFlashcardsBtn');
+            const originalBtnText = generateBtn.innerHTML;
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating Flashcards...';
+            generateBtn.disabled = true;
+
+            const resultsArea = document.getElementById('resultsArea');
+            resultsArea.style.display = 'block';
+            resultsArea.innerHTML = `
+            <div class="loading-container">
+                <div class="loading-spinner">
+                    <i class="fas fa-brain fa-spin"></i>
+                </div>
+                <h3>Generating Smart Flashcards...</h3>
+                <p>AI is analyzing your content and creating personalized flashcards</p>
+            </div>
+        `;
+
+            isGenerating = true;
+
+            try {
+                const formData = new FormData();
+                const textContent = document.getElementById('textContent').value.trim();
+
+                if (uploadedContent && typeof uploadedContent !== 'string') {
+                    console.log("Sending file to API:", uploadedContent.name);
+                    formData.append('file', uploadedContent);
+                } else if (textContent) {
+                    console.log("Sending text to API");
+                    formData.append('text', textContent);
+                } else {
+                    showError('Please upload a file or enter text content first!');
+                    isGenerating = false;
+                    generateBtn.innerHTML = originalBtnText;
+                    generateBtn.disabled = false;
+                    return;
+                }
+
+                // Log the formData contents for debugging
+                for (let pair of formData.entries()) {
+                    console.log(pair[0] + ': ' + (pair[1] instanceof File ? pair[1].name : pair[1]));
+                }
+
+                // Call FastAPI endpoint
+                const response = await fetch('/api/generate-flashcards', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    console.log("Flashcards generated successfully:", result);
+                    currentFlashcards = result;
+                    displayFlashcardResults(result);
+                } else {
+                    console.error("Error generating flashcards:", result);
+                    showError(result.detail || 'Failed to generate flashcards');
+                    resultsArea.style.display = 'none';
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Network error occurred. Please try again.');
+                resultsArea.style.display = 'none';
+            } finally {
+                isGenerating = false;
+                generateBtn.innerHTML = originalBtnText;
+                generateBtn.disabled = false;
+            }
+        }
+
+        function displayFlashcardResults(flashcards) {
+            const resultsArea = document.getElementById('resultsArea');
+
+            if (!flashcards || flashcards.length === 0) {
+                resultsArea.innerHTML = `
+                <div class="no-results">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>No flashcards generated</h3>
+                    <p>Please try with different content or check your input.</p>
+                </div>
+            `;
+                return;
+            }
+
+            // Generate HTML for flashcard grid
+            let flashcardsHTML = '';
+
+            flashcards.forEach(card => {
+                const difficulty = card.difficulty || 'medium';
+                flashcardsHTML += `
+                <div class="flashcard-item-container">
+                    <div class="flashcard-item" onclick="this.classList.toggle('flipped')">
+                        <div class="flashcard-front ${difficulty}">
+                            <div class="difficulty-badge ${difficulty}">${difficulty.toUpperCase()}</div>
+                            <div class="card-content">
+                                <p class="question-text">${card.question}</p>
+                            </div>
+                            <div class="flip-instruction">
+                                <i class="fas fa-sync-alt"></i> Click to flip
+                            </div>
+                        </div>
+                        <div class="flashcard-back ${difficulty}">
+                            <div class="difficulty-badge ${difficulty}">${difficulty.toUpperCase()}</div>
+                            <div class="card-content">
+                                <p class="answer-text">${card.answer}</p>
+                            </div>
+                            <div class="flip-instruction">
+                                <i class="fas fa-sync-alt"></i> Click to flip
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            });
+
+            // Only show the shuffle button (no Generate Quiz)
+            resultsArea.innerHTML = `
+            <div class="flashcard-grid">${flashcardsHTML}</div>
+            <div class="results-actions">
+                <button class="shuffle-btn" onclick="shuffleFlashcards()">
+                    <i class="fas fa-random"></i> Shuffle Cards
+                </button>
+            </div>
+        `;
+
+            // Scroll to results
+            resultsArea.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function shuffleFlashcards() {
+            if (!currentFlashcards || currentFlashcards.length <= 1) return;
+
+            // Get all flashcard elements
+            const cards = document.querySelectorAll('.flashcard-item-container');
+
+            // Add animation class to all cards
+            cards.forEach(card => {
+                card.classList.add('shuffle-animation');
+                // Remove animation class after animation completes
+                setTimeout(() => {
+                    card.classList.remove('shuffle-animation');
+                }, 700);
+            });
+
+            // Fisher-Yates shuffle algorithm
+            for (let i = currentFlashcards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentFlashcards[i], currentFlashcards[j]] = [currentFlashcards[j], currentFlashcards[i]];
+            }
+
+            // Short delay to show animation before updating the display
+            setTimeout(() => {
+                displayFlashcardResults(currentFlashcards);
+                showSuccess('Cards shuffled! 🎲');
+            }, 300);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.innerHTML = `
+            <i class="fas fa-exclamation-triangle"></i>
+            ${message}
+        `;
+            document.body.appendChild(errorDiv);
+
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.innerHTML = `
+            <i class="fas fa-check-circle"></i>
+            ${message}
+        `;
+            document.body.appendChild(successDiv);
+
+            setTimeout(() => {
+                successDiv.remove();
+            }, 3000);
+        }
+
+        // Theme toggling function (this can still be included)
+        function toggleTheme() {
+            document.body.classList.toggle('day-mode');
+            localStorage.setItem('dayMode', document.body.classList.contains('day-mode'));
+
+            const themeIcon = document.querySelector('.theme-toggle i');
+            if (themeIcon) {
+                themeIcon.className = document.body.classList.contains('day-mode') ? 'fas fa-sun' : 'fas fa-moon';
+            }
+        }
+    </script>
+
+    <style>
+        /* Flashcard specific styles with enhanced colors and sizing */
+        .flashcard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            /* Larger cards */
+            gap: 2rem;
+            /* More spacing between cards */
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .flashcard-item-container {
+            perspective: 1200px;
+            min-height: 280px;
+            /* Taller cards */
+        }
+
+        .flashcard-item {
+            width: 100%;
+            height: 100%;
+            min-height: 280px;
+            /* Matching height */
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s ease-in-out;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .flashcard-item.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front,
+        .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            padding: 2.5rem;
+            /* More padding */
+            padding-top: 3.5rem;
+            /* Extra padding at top for badge */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            /* Enhanced shadow */
+        }
+
+        /* More colorful front backgrounds based on difficulty */
+        .flashcard-front {
+            background: linear-gradient(to bottom right, #f0f9ff, #d6ecff);
+            color: #334155;
+            border: 2px solid rgba(203, 213, 225, 0.3);
+        }
+
+        .flashcard-front.easy {
+            background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+        }
+
+        .flashcard-front.medium {
+            background: linear-gradient(135deg, #f0fdf4, #d9f99d);
+        }
+
+        .flashcard-front.hard {
+            background: linear-gradient(135deg, #fff1f2, #fecdd3);
+        }
+
+        body:not(.day-mode) .flashcard-front {
+            background: linear-gradient(135deg, #334155, #1e293b);
+            color: #e2e8f0;
+            border-color: rgba(148, 163, 184, 0.2);
+        }
+
+        body:not(.day-mode) .flashcard-front.easy {
+            background: linear-gradient(135deg, #0c4a6e, #0369a1);
+        }
+
+        body:not(.day-mode) .flashcard-front.medium {
+            background: linear-gradient(135deg, #3f6212, #65a30d);
+        }
+
+        body:not(.day-mode) .flashcard-front.hard {
+            background: linear-gradient(135deg, #881337, #be123c);
+        }
+
+        /* Enhanced colorful back sides */
+        .flashcard-back {
+            background: linear-gradient(135deg, #8b5cf6, #6366f1, #ec4899);
+            color: white;
+            transform: rotateY(180deg);
+            box-shadow: 0 15px 35px rgba(139, 92, 246, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .flashcard-back.easy {
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+        }
+
+        .flashcard-back.medium {
+            background: linear-gradient(135deg, #f59e0b, #fb7185);
+        }
+
+        .flashcard-back.hard {
+            background: linear-gradient(135deg, #ef4444, #f43f5e, #db2777);
+        }
+
+        .difficulty-badge {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 0.4rem 0.9rem;
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 5;
+        }
+
+        .difficulty-badge.easy {
+            background: #10b981;
+            color: white;
+        }
+
+        .difficulty-badge.medium {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .difficulty-badge.hard {
+            background: #ef4444;
+            color: white;
+        }
+
+        .card-content {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 0;
+            margin-top: 0.5rem;
+        }
+
+        .question-text,
+        .answer-text {
+            font-size: 1.25rem;
+            /* Larger text */
+            line-height: 1.7;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .flip-instruction {
+            font-size: 0.85rem;
+            text-align: center;
+            margin-top: 1.2rem;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        /* Center just the shuffle button */
+        .results-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .shuffle-btn {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .shuffle-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(99, 102, 241, 0.6);
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        }
+
+        .shuffle-animation {
+            animation: cardShuffle 0.7s ease-in-out;
+        }
+
+        @keyframes cardShuffle {
+            0% {
+                transform: translateY(0) rotate(0);
+            }
+
+            25% {
+                transform: translateY(-15px) rotate(5deg);
+            }
+
+            50% {
+                transform: translateY(0) rotate(-5deg);
+            }
+
+            75% {
+                transform: translateY(-10px) rotate(3deg);
+            }
+
+            100% {
+                transform: translateY(0) rotate(0);
+            }
+        }
+
+        /* Rest of styles remain the same */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .loading-spinner i {
+            animation-duration: 2s;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            color: var(--warning);
+            margin-bottom: 1rem;
+        }
+
+        /* Upload styles */
+        .upload-success {
+            background: #10b981;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .upload-link {
+            display: inline-block;
+            color: #0ea5e9;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            /* Added standard property for cross-browser compatibility */
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border: 2px solid rgba(236, 72, 153, 0.3);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(236, 72, 153, 0.2);
+            border-color: rgba(236, 72, 153, 0.5);
+        }
+
+        /* Premium Upload Button Styling */
+.browse-upload-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0.85rem 1.8rem;
+    border-radius: 30px;
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 
+        0 8px 20px rgba(139, 92, 246, 0.3),
+        0 4px 12px rgba(236, 72, 153, 0.2);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    text-decoration: none;
+}
+
+.browse-upload-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+        0 12px 25px rgba(139, 92, 246, 0.4),
+        0 6px 15px rgba(236, 72, 153, 0.3);
+}
+
+.browse-upload-btn:active {
+    transform: translateY(-1px);
+}
+
+.upload-different-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0.85rem 1.8rem;
+    border-radius: 30px;
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 
+        0 8px 20px rgba(139, 92, 246, 0.3),
+        0 4px 12px rgba(236, 72, 153, 0.2);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    margin-top: 1rem;
+}
+
+.upload-different-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+        0 12px 25px rgba(139, 92, 246, 0.4),
+        0 6px 15px rgba(236, 72, 153, 0.3);
+}
+
+.upload-different-btn:active {
+    transform: translateY(-1px);
+}
+
+.upload-different-btn .bolt {
+    display: inline-block;
+    transform: translateY(1px);
+    margin-left: 4px;
+}
+    </style>
+</body>
+
+</html>

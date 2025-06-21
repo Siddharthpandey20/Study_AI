@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Path Generator - StudyAI</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/feature-pages.css">
+</head>
+<body>
+    <!-- Feature Page Navbar -->
+    <header class="feature-header">
+        <nav class="feature-nav">
+            <a href="/" class="nav-home">
+                <i class="fas fa-home"></i> Home
+            </a>
+            
+            <div class="feature-tabs">
+                <a href="flashcards.html" class="feature-tab">
+                    <i class="fas fa-brain"></i> Flashcards
+                </a>
+                <a href="mindmap.html" class="feature-tab">
+                    <i class="fas fa-project-diagram"></i> Mind Map
+                </a>
+                <a href="learning-path.html" class="feature-tab active">
+                    <i class="fas fa-route"></i> Learning Path
+                </a>
+                <a href="sticky-notes.html" class="feature-tab">
+                    <i class="fas fa-sticky-note"></i> Sticky Notes
+                </a>
+                <a href="exam-booster.html" class="feature-tab">
+                    <i class="fas fa-trophy"></i> Exam Booster
+                </a>
+                <a href="youtube-summarizer.html" class="feature-tab">
+                    <i class="fab fa-youtube"></i> YouTube
+                </a>
+                
+               
+            </div>
+            
+            <div class="nav-controls">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="settings-btn">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="feature-main">
+        <div class="feature-container">
+            <div class="feature-title-section">
+                <h1><i class="fas fa-route"></i> Learning Path Generator</h1>
+                <p>Upload your study materials and generate personalized learning paths with structured progression</p>
+            </div>
+
+            <!-- Drag and Drop Upload Area -->
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-content">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Drop your files here</h3>
+                    <p>or <button class="browse-upload-btn" onclick="document.getElementById('fileInput').click()">BROWSE TO UPLOAD</button></p>
+                    <div class="supported-formats">
+                        <span class="format-tag">PDF</span>
+                        <span class="format-tag">DOCX</span>
+                        <span class="format-tag">TXT</span>
+                        <span class="format-tag">MD</span>
+                    </div>
+                </div>
+                <input type="file" id="fileInput" multiple accept=".pdf,.docx,.txt,.md" style="display: none;">
+            </div>
+
+            <!-- Text Input Alternative -->
+            <div class="text-input-section">
+                <h3><i class="fas fa-keyboard"></i> Or paste your text content</h3>
+                <textarea id="textContent" placeholder="Paste your study material here..." rows="8"></textarea>
+            </div>
+
+            <!-- Generate Button -->
+            <div class="generate-section">
+                <button id="generateBtn" class="generate-btn">
+                    <i class="fas fa-magic"></i>
+                    Generate Learning Path
+                </button>
+            </div>
+
+            <!-- Results Area -->
+            <div class="results-area" id="resultsArea" style="display: none;">
+                <!-- Results will be dynamically loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Self-contained script to handle learning path functionality -->
+    <script>
+    // Global variables
+    let uploadedContent = null;
+    let isGenerating = false;
+
+    // Initialize event handlers when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load theme preference from localStorage (ADD THIS CODE)
+        const isDayMode = localStorage.getItem('dayMode') === 'true';
+        if (isDayMode) {
+            document.body.classList.add('day-mode');
+            const themeIcon = document.querySelector('.theme-toggle i');
+            if (themeIcon) {
+                themeIcon.className = 'fas fa-sun';
+            }
+        }
+        
+        // Setup file input and upload zone
+        const fileInput = document.getElementById('fileInput');
+        const uploadZone = document.getElementById('uploadZone');
+        const generateBtn = document.getElementById('generateBtn');
+
+        // Setup event handlers
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        uploadZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadZone.classList.add('drag-over');
+        });
+        
+        uploadZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadZone.classList.remove('drag-over');
+        });
+        
+        uploadZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadZone.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        });
+        
+        generateBtn.addEventListener('click', generateLearningPath);
+        
+        // Clear file when text is entered
+        document.getElementById('textContent').addEventListener('input', function() {
+            if (uploadedContent) {
+                uploadedContent = null;
+                resetUploadZone();
+            }
+        });
+    });
+
+    // Handle file selection from input
+    function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (file) {
+            processFile(file);
+        }
+    }
+
+    // Process the uploaded file
+    function processFile(file) {
+        const uploadZone = document.getElementById('uploadZone');
+        const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'text/markdown'];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+
+        // More flexible file type checking
+        if (!allowedTypes.includes(file.type) && !['pdf', 'docx', 'txt', 'md'].includes(fileExtension)) {
+            showError('Please upload a PDF, DOCX, TXT, or MD file.');
+            return;
+        }
+
+        if (file.size > 16 * 1024 * 1024) { // 16MB limit
+            showError('File size must be less than 16MB.');
+            return;
+        }
+
+        // Store uploaded file
+        uploadedContent = file;
+        document.getElementById('textContent').value = ''; // Clear text area
+
+        // Update the upload zone UI to show success state
+        uploadZone.innerHTML = `
+            <div class="upload-content">
+                <div class="upload-success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3>File uploaded successfully!</h3>
+                <p><strong>${file.name}</strong> (${formatFileSize(file.size)})</p>
+                <button class="upload-different-btn" onclick="resetUpload()">UPLOAD DIFFERENT FILE<span class="bolt">⚡</span></button>
+            </div>
+        `;
+
+        // Log to verify upload was processed
+        console.log("File processed successfully:", file.name);
+    }
+
+    // Reset the upload zone to its initial state
+    function resetUploadZone() {
+        const uploadZone = document.getElementById('uploadZone');
+        uploadZone.innerHTML = `
+            <div class="upload-content">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <h3>Drop your files here</h3>
+                <p>or <button class="browse-upload-btn" onclick="document.getElementById('fileInput').click()">BROWSE TO UPLOAD</button></p>
+                <div class="supported-formats">
+                    <span class="format-tag">PDF</span>
+                    <span class="format-tag">DOCX</span>
+                    <span class="format-tag">TXT</span>
+                    <span class="format-tag">MD</span>
+                </div>
+            </div>
+        `;
+        
+        const fileInput = document.getElementById('fileInput');
+        fileInput.value = '';
+        uploadedContent = null;
+    }
+
+    // Generate learning path using API
+    async function generateLearningPath() {
+        console.log("Generating learning path...");
+        
+        if (isGenerating) {
+            return;
+        }
+        
+        const textContent = document.getElementById('textContent').value.trim();
+        
+        if (!uploadedContent && !textContent) {
+            showNotification('Please upload a file or enter text content first!', 'error');
+            return;
+        }
+        
+        isGenerating = true;
+        showLoadingState();
+        
+        try {
+            const formData = new FormData();
+            
+            if (uploadedContent) {
+                console.log("Using file:", uploadedContent.name);
+                formData.append('file', uploadedContent);
+            } else {
+                console.log("Using text input");
+                formData.append('text', textContent);
+            }
+            
+            // Call API endpoint
+            const response = await fetch('/api/generate-learning-path', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Failed to generate learning path');
+            }
+            
+            const result = await response.json();
+            displayLearningPath(result);
+            
+        } catch (error) {
+            console.error("Error generating learning path:", error);
+            showNotification(error.message, 'error');
+            hideLoadingState();
+        } finally {
+            isGenerating = false;
+        }
+    }
+
+    // Show loading state while API call is in progress
+    function showLoadingState() {
+        const resultsArea = document.getElementById('resultsArea');
+        resultsArea.style.display = 'block';
+        resultsArea.innerHTML = `
+            <div class="loading-container">
+                <div class="loading-spinner">
+                    <i class="fas fa-route fa-spin"></i>
+                </div>
+                <h3>Generating Your Learning Path...</h3>
+                <p>AI is analyzing your content and creating a personalized learning journey</p>
+            </div>
+        `;
+        
+        document.getElementById('generateBtn').disabled = true;
+    }
+
+    // Hide loading state
+    function hideLoadingState() {
+        document.getElementById('generateBtn').disabled = false;
+    }
+
+    // Display the learning path
+    function displayLearningPath(steps) {
+        const resultsArea = document.getElementById('resultsArea');
+        
+        if (!steps || steps.length === 0) {
+            resultsArea.innerHTML = `
+                <div class="no-results">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>No Learning Path Generated</h3>
+                    <p>Please try with different content.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Build the learning path HTML
+        let stepsHTML = '';
+        
+        steps.forEach((step, index) => {
+            // Format prerequisites
+            let prerequisitesHTML = '';
+            if (step.prerequisites && step.prerequisites.length > 0) {
+                prerequisitesHTML = step.prerequisites.map(prereq => {
+                    return `<span class="prerequisite-pill">Prerequisites: ${prereq}</span>`;
+                }).join(' ');
+            }
+            
+            stepsHTML += `
+                <div class="learning-step">
+                    <div class="step-number">${index + 1}</div>
+                    <div class="step-content">
+                        <h3 class="step-title">${step.title}</h3>
+                        <p class="step-description">${step.description}</p>
+                        <div class="step-meta">
+                            <span class="time-pill"><i class="far fa-clock"></i> ${step.estimated_time}</span>
+                            ${prerequisitesHTML}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        resultsArea.innerHTML = `
+            <div class="learning-path-container">
+                <div class="learning-path-header">
+                    <h2>👍 Your Learning Path</h2>
+                </div>
+                <div class="learning-path-steps">
+                    ${stepsHTML}
+                </div>
+            </div>
+        `;
+        
+        // Scroll to results
+        resultsArea.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Utility Functions
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span>${message}</span>
+                <button onclick="this.parentElement.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 5000);
+    }
+
+    // Handle theme toggle
+    function toggleTheme() {
+        document.body.classList.toggle('day-mode');
+        const isDayMode = document.body.classList.contains('day-mode');
+        localStorage.setItem('dayMode', isDayMode);
+        
+        const themeIcon = document.querySelector('.theme-toggle i');
+        if (themeIcon) {
+            themeIcon.className = isDayMode ? 'fas fa-sun' : 'fas fa-moon';
+        }
+    }
+
+    function resetUpload() {
+        const uploadZone = document.getElementById('uploadZone');
+        uploadZone.innerHTML = `
+            <div class="upload-content">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <h3>Drop your files here</h3>
+                <p>or <button class="browse-upload-btn" onclick="document.getElementById('fileInput').click()">BROWSE TO UPLOAD</button></p>
+                <div class="supported-formats">
+                    <span class="format-tag">PDF</span>
+                    <span class="format-tag">DOCX</span>
+                    <span class="format-tag">TXT</span>
+                    <span class="format-tag">MD</span>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('fileInput').value = '';
+        uploadedContent = null;
+    }
+    </script>
+
+    <style>
+    /* Learning Path Specific Styles */
+    .upload-success-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .upload-success-icon {
+        background-color: #10b981;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        color: white;
+        font-size: 2rem;
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Premium Upload Button Styling */
+.browse-upload-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0.85rem 1.8rem;
+    border-radius: 30px;
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 
+        0 8px 20px rgba(139, 92, 246, 0.3),
+        0 4px 12px rgba(236, 72, 153, 0.2);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    text-decoration: none;
+}
+
+.browse-upload-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+        0 12px 25px rgba(139, 92, 246, 0.4),
+        0 6px 15px rgba(236, 72, 153, 0.3);
+}
+
+.browse-upload-btn:active {
+    transform: translateY(-1px);
+}
+
+.upload-different-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0.85rem 1.8rem;
+    border-radius: 30px;
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 
+        0 8px 20px rgba(139, 92, 246, 0.3),
+        0 4px 12px rgba(236, 72, 153, 0.2);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    margin-top: 1rem;
+}
+
+.upload-different-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+        0 12px 25px rgba(139, 92, 246, 0.4),
+        0 6px 15px rgba(236, 72, 153, 0.3);
+}
+
+.upload-different-btn:active {
+    transform: translateY(-1px);
+}
+
+.upload-different-btn .bolt {
+    display: inline-block;
+    transform: translateY(1px);
+    margin-left: 4px;
+}
+
+    .learning-path-container {
+        margin: 2rem 0;
+        background-color: #f3f9ff; /* Light blue */
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .learning-path-header {
+        background: linear-gradient(135deg, #8b5cf6, #d946ef);
+        padding: 1.5rem;
+        color: white;
+        text-align: center;
+    }
+
+    .learning-path-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+    .learning-path-steps {
+        padding: 1rem;
+    }
+
+    .learning-step {
+        display: flex;
+        margin-bottom: 1.5rem;
+        background-color: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .step-number {
+        background-color: #8b5cf6;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+        min-width: 50px;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin: 1.5rem;
+    }
+
+    .step-content {
+        flex-grow: 1;
+        padding: 1.5rem 1.5rem 1.5rem 0;
+    }
+
+    .step-title {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        color: #334155;
+    }
+
+    .step-description {
+        margin-bottom: 1rem;
+        color: #64748b;
+        line-height: 1.6;
+    }
+
+    .step-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .time-pill, .prerequisite-pill {
+        background-color: #f1f5f9;
+        color: #64748b;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .prerequisite-pill {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+    /* Loading animation */
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        text-align: center;
+    }
+
+    .loading-spinner {
+        font-size: 3rem;
+        color: #8b5cf6;
+        margin-bottom: 1.5rem;
+    }
+
+    .loading-spinner i {
+        animation-duration: 2s;
+    }
+
+    /* Error/No results styles */
+    .no-results {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        text-align: center;
+        color: #64748b;
+    }
+
+    .no-results i {
+        font-size: 3rem;
+        color: #f59e0b;
+        margin-bottom: 1rem;
+    }
+
+    /* Notification styles */
+    .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: white;
+        border-left: 4px solid #3b82f6;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        max-width: 350px;
+    }
+
+    .notification.error {
+        border-left-color: #ef4444;
+    }
+
+    .notification.success {
+        border-left-color: #10b981;
+    }
+
+    .notification-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .notification-content button {
+        background: none;
+        border: none;
+        color: #64748b;
+        cursor: pointer;
+        font-size: 0.9rem;
+        margin-left: 1rem;
+        padding: 0.2rem;
+    }
+
+    /* Dark Mode Adjustments */
+    body:not(.day-mode) .learning-path-container {
+        background-color: #1e293b;
+    }
+
+    body:not(.day-mode) .learning-step {
+        background-color: #334155;
+    }
+
+    body:not(.day-mode) .step-title {
+        color: #e2e8f0;
+    }
+
+    body:not(.day-mode) .step-description {
+        color: #cbd5e1;
+    }
+
+    body:not(.day-mode) .time-pill {
+        background-color: #475569;
+        color: #e2e8f0;
+    }
+
+    body:not(.day-mode) .prerequisite-pill {
+        background-color: #78350f;
+        color: #fde68a;
+    }
+    </style>
+</body>
+</html>

@@ -1,0 +1,45 @@
+fastapi
+uvicorn
+python-multipart
+google-generativeai
+PyPDF2
+python-docx
+pandas
+Jinja2
+aiofiles
+
+# YouTube functionality dependencies
+yt-dlp
+youtube-transcript-api
+
+# Document Q&A dependencies
+langchain
+langchain-google-genai
+langchain-community
+faiss-cpu
+sentence-transformers
+beautifulsoup4
+pdfplumber
+easyocr
+playwright
+rank-bm25
+python-dotenv
+pillow
+numpy
+
+# Authentication dependencies
+authlib
+python-jose[cryptography]
+passlib[bcrypt]
+
+# Database and storage
+sqlalchemy
+alembic
+cloudinary
+
+# Session management
+itsdangerous
+PyJWT==2.8.0 
+passlib[bcrypt]==1.7.4 
+python-dotenv==1.0.0 
+bcrypt==4.0.1

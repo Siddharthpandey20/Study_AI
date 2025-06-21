@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Sticky Notes - StudyAI</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/feature-pages.css">
+    <style>
+    /* Sticky Notes Styling */
+    .sticky-notes-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        padding: 1rem 0;
+    }
+    
+    .notes-filter {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+    
+    .filter-btn {
+        padding: 0.85rem 1.35rem;
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 50px;
+        cursor: pointer;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 
+            0 4px 12px rgba(0, 0, 0, 0.08),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+    }
+    
+    .filter-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 
+            0 8px 20px rgba(0, 0, 0, 0.12),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.9);
+    }
+    
+    .filter-btn.active {
+        background: var(--primary);
+        color: white;
+        box-shadow: 
+            0 8px 25px rgba(139, 92, 246, 0.4),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .color-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5);
+    }
+    
+    .color-dot.red { background-color: #ef4444; }
+    .color-dot.yellow { background-color: #f59e0b; }
+    .color-dot.green { background-color: #10b981; }
+    
+    .sticky-notes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+    
+    /* Premium Sticky Notes Styling */
+    .sticky-note {
+        background: #f8fafc;
+        padding: 1.8rem;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        min-height: 200px;
+        border-top: 10px solid #94a3b8;
+        background-image: 
+            repeating-linear-gradient(0deg, transparent, transparent 29px, rgba(0,0,0,0.03) 29px, rgba(0,0,0,0.03) 30px);
+        transform-style: preserve-3d;
+        backface-visibility: hidden;
+        box-shadow: 
+            0 10px 30px -15px rgba(0, 0, 0, 0.3),
+            0 3px 8px -2px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        backdrop-filter: blur(5px);
+    }
+    
+    .sticky-note::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at top right, rgba(255,255,255,0.8) 0%, transparent 70%);
+        opacity: 0.7;
+        pointer-events: none;
+        z-index: 1;
+    }
+    
+    .sticky-note::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 25px;
+        height: 25px;
+        background: linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.1) 50%);
+        border-bottom-left-radius: 5px;
+        transform: translate(3px, -3px);
+        z-index: 2;
+        transition: all 0.3s ease;
+    }
+    
+    .sticky-note:hover {
+        transform: translateY(-8px) rotateY(2deg) scale(1.02);
+        box-shadow: 
+            0 20px 40px -15px rgba(0, 0, 0, 0.35),
+            0 5px 15px -3px rgba(0, 0, 0, 0.2);
+    }
+    
+    .sticky-note:hover::after {
+        transform: translate(6px, -6px);
+    }
+    
+    /* Red Sticky Notes */
+    .sticky-note.red {
+        border-color: #ef4444;
+        background: linear-gradient(145deg, #fef2f2 0%, #fee2e2 40%, #fecaca 100%);
+        box-shadow: 
+            0 10px 25px -5px rgba(239, 68, 68, 0.4),
+            0 5px 15px -5px rgba(239, 68, 68, 0.2),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+    }
+    
+    .sticky-note.red:hover {
+        box-shadow: 
+            0 20px 35px -10px rgba(239, 68, 68, 0.5),
+            0 10px 20px -7px rgba(239, 68, 68, 0.3),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+    }
+    
+    /* Yellow Sticky Notes */
+    .sticky-note.yellow {
+        border-color: #f59e0b;
+        background: linear-gradient(145deg, #fffbeb 0%, #fef3c7 40%, #fde68a 100%);
+        box-shadow: 
+            0 10px 25px -5px rgba(245, 158, 11, 0.4),
+            0 5px 15px -5px rgba(245, 158, 11, 0.2),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+    }
+    
+    .sticky-note.yellow:hover {
+        box-shadow: 
+            0 20px 35px -10px rgba(245, 158, 11, 0.5),
+            0 10px 20px -7px rgba(245, 158, 11, 0.3),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+    }
+    
+    /* Green Sticky Notes */
+    .sticky-note.green {
+        border-color: #10b981;
+        background: linear-gradient(145deg, #ecfdf5 0%, #d1fae5 40%, #a7f3d0 100%);
+        box-shadow: 
+            0 10px 25px -5px rgba(16, 185, 129, 0.4),
+            0 5px 15px -5px rgba(16, 185, 129, 0.2),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+    }
+    
+    .sticky-note.green:hover {
+        box-shadow: 
+            0 20px 35px -10px rgba(16, 185, 129, 0.5),
+            0 10px 20px -7px rgba(16, 185, 129, 0.3),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+    }
+    
+    body:not(.day-mode) .sticky-note {
+        box-shadow: 
+            0 15px 35px -5px rgba(0, 0, 0, 0.5),
+            0 5px 15px rgba(0, 0, 0, 0.3),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+    
+    body:not(.day-mode) .sticky-note.red {
+        background: linear-gradient(145deg, rgba(127, 29, 29, 0.95), rgba(153, 27, 27, 0.8), rgba(185, 28, 28, 0.9));
+        color: #fecaca;
+        box-shadow: 
+            0 15px 35px -5px rgba(239, 68, 68, 0.45),
+            0 5px 15px rgba(239, 68, 68, 0.3),
+            inset 0 0 0 1px rgba(239, 68, 68, 0.2);
+    }
+    
+    body:not(.day-mode) .sticky-note.yellow {
+        background: linear-gradient(145deg, rgba(120, 53, 15, 0.95), rgba(146, 64, 14, 0.8), rgba(180, 83, 9, 0.9));
+        color: #fef3c7;
+        box-shadow: 
+            0 15px 35px -5px rgba(245, 158, 11, 0.45),
+            0 5px 15px rgba(245, 158, 11, 0.3),
+            inset 0 0 0 1px rgba(245, 158, 11, 0.2);
+    }
+    
+    body:not(.day-mode) .sticky-note.green {
+        background: linear-gradient(145deg, rgba(6, 78, 59, 0.95), rgba(6, 95, 70, 0.8), rgba(4, 120, 87, 0.9));
+        color: #d1fae5;
+        box-shadow: 
+            0 15px 35px -5px rgba(16, 185, 129, 0.45),
+            0 5px 15px rgba(16, 185, 129, 0.3),
+            inset 0 0 0 1px rgba(16, 185, 129, 0.2);
+    }
+    
+    /* Enhanced Note Content */
+    .note-content {
+        flex-grow: 1;
+        font-size: 1.1rem;
+        line-height: 1.7;
+        color: #334155;
+        white-space: pre-wrap;
+        position: relative;
+        z-index: 3;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        text-shadow: 0 1px 0 rgba(255,255,255,0.8);
+    }
+    
+    body:not(.day-mode) .note-content {
+        color: inherit;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+    
+    /* Enhanced Note Header */
+    .note-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 3;
+    }
+    
+    .note-priority {
+        color: #64748b;
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transform: translateZ(5px);
+    }
+    
+    .note-priority i {
+        margin-right: 3px;
+        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+        color: currentColor;
+        opacity: 0.85;
+    }
+    
+    .sticky-note.red .note-priority i {
+        color: #b91c1c;
+        filter: drop-shadow(0 0 3px rgba(239, 68, 68, 0.4));
+    }
+    
+    .sticky-note.yellow .note-priority i {
+        color: #b45309;
+        filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.4));
+    }
+    
+    .sticky-note.green .note-priority i {
+        color: #047857;
+        filter: drop-shadow(0 0 3px rgba(16, 185, 129, 0.4));
+    }
+    
+    /* Enhanced Action Buttons */
+    .note-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(4px);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transform: translateZ(5px);
+        opacity: 0.7;
+    }
+    
+    .note-btn:hover {
+        background: #ffffff;
+        transform: translateY(-3px) scale(1.15) translateZ(5px);
+        box-shadow: 0 8px 20px -5px rgba(0,0,0,0.25);
+        opacity: 1;
+    }
+    
+    .note-btn:active {
+        transform: translateY(0) scale(0.95) translateZ(5px);
+    }
+    
+    .note-btn i {
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+    
+    /* Enhanced Tags */
+    .note-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        z-index: 3;
+    }
+    
+    .note-tag {
+        padding: 0.3rem 0.85rem;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(5px);
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+    
+    .note-tag:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+        background: rgba(255, 255, 255, 0.9);
+    }
+    
+    body:not(.day-mode) .note-tag {
+        background: rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.9);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    body:not(.day-mode) .note-tag:hover {
+        background: rgba(255, 255, 255, 0.25);
+    }
+    
+    /* Upload success styling */
+    .upload-success {
+        background: #10b981;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: white;
+        font-size: 1.5rem;
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+    }
+    
+    .upload-link {
+        display: inline-block;
+        color: #0ea5e9;
+        font-weight: 600;
+        cursor: pointer;
+        background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border: 2px solid rgba(236, 72, 153, 0.3);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+    
+    .upload-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(236, 72, 153, 0.2);
+        border-color: rgba(236, 72, 153, 0.5);
+    }
+    
+    /* Premium Upload Button Styling */
+    .browse-upload-btn {
+        display: inline-block;
+        background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.9rem;
+        padding: 0.85rem 1.8rem;
+        border-radius: 30px;
+        border: none;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 
+            0 8px 20px rgba(139, 92, 246, 0.3),
+            0 4px 12px rgba(236, 72, 153, 0.2);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        text-decoration: none;
+    }
+    
+    .browse-upload-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 
+            0 12px 25px rgba(139, 92, 246, 0.4),
+            0 6px 15px rgba(236, 72, 153, 0.3);
+    }
+    
+    .browse-upload-btn:active {
+        transform: translateY(-1px);
+    }
+    
+    .upload-different-btn {
+        display: inline-block;
+        background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.9rem;
+        padding: 0.85rem 1.8rem;
+        border-radius: 30px;
+        border: none;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 
+            0 8px 20px rgba(139, 92, 246, 0.3),
+            0 4px 12px rgba(236, 72, 153, 0.2);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        margin-top: 1rem;
+    }
+    
+    .upload-different-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 
+            0 12px 25px rgba(139, 92, 246, 0.4),
+            0 6px 15px rgba(236, 72, 153, 0.3);
+    }
+    
+    .upload-different-btn:active {
+        transform: translateY(-1px);
+    }
+    
+    .upload-different-btn .bolt {
+        display: inline-block;
+        transform: translateY(1px);
+        margin-left: 4px;
+    }
+    </style>
+</head>
+<body>
+    <!-- Feature Page Navbar -->
+    <header class="feature-header">
+        <nav class="feature-nav">
+            <a href="/" class="nav-home">
+                <i class="fas fa-home"></i> Home
+            </a>
+            
+            <div class="feature-tabs">
+                <a href="flashcards.html" class="feature-tab">
+                    <i class="fas fa-brain"></i> Flashcards
+                </a>
+                <a href="mindmap.html" class="feature-tab">
+                    <i class="fas fa-project-diagram"></i> Mind Map
+                </a>
+                <a href="learning-path.html" class="feature-tab">
+                    <i class="fas fa-route"></i> Learning Path
+                </a>
+                <a href="sticky-notes.html" class="feature-tab active">
+                    <i class="fas fa-sticky-note"></i> Sticky Notes
+                </a>
+                <a href="exam-booster.html" class="feature-tab">
+                    <i class="fas fa-trophy"></i> Exam Booster
+                </a>
+                <a href="youtube-summarizer.html" class="feature-tab">
+                    <i class="fab fa-youtube"></i> YouTube
+                </a>
+           
+              
+            </div>
+            
+            <div class="nav-controls">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="settings-btn">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="feature-main">
+        <div class="feature-container">
+            <div class="feature-title-section">
+                <h1><i class="fas fa-sticky-note"></i> Smart Sticky Notes</h1>
+                <p>Upload your study materials and generate AI-powered color-coded sticky notes for key concepts</p>
+            </div>
+
+            <!-- Drag and Drop Upload Area -->
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-content">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Drop your files here</h3>
+                    <p>or <button class="browse-upload-btn" onclick="document.getElementById('fileInput').click()">BROWSE TO UPLOAD</button></p>
+                    <div class="supported-formats">
+                        <span class="format-tag">PDF</span>
+                        <span class="format-tag">DOCX</span>
+                        <span class="format-tag">TXT</span>
+                        <span class="format-tag">MD</span>
+                    </div>
+                </div>
+                <input type="file" id="fileInput" multiple accept=".pdf,.docx,.txt,.md" style="display: none;">
+            </div>
+
+            <!-- Text Input Alternative -->
+            <div class="text-input-section">
+                <h3><i class="fas fa-keyboard"></i> Or paste your text content</h3>
+                <textarea id="textContent" placeholder="Paste your study material here..." rows="8"></textarea>
+            </div>
+
+            <!-- Generate Button -->
+            <div class="generate-section">
+                <button class="generate-btn" onclick="generateStickyNotes()">
+                    <i class="fas fa-magic"></i>
+                    Generate Sticky Notes
+                </button>
+            </div>
+
+            <!-- Results Area -->
+            <div class="results-area" id="resultsArea" style="display: none;">
+                <!-- Results will be dynamically loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <script src="static/js/script.js"></script>
+    <script src="static/js/feature-pages.js"></script>
+    <script>
+    // Global variables for sticky notes
+    let uploadedContent = null;
+    let isGenerating = false;
+    let currentNotes = [];
+
+    // Initialize when document loads
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log("Initializing sticky notes functionality...");
+
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const textContent = document.getElementById('textContent');
+
+        // File input change handler
+        fileInput.addEventListener('change', handleFileSelect);
+
+        // Drag and drop handlers
+        uploadZone.addEventListener('dragover', handleDragOver);
+        uploadZone.addEventListener('dragleave', handleDragLeave);
+        uploadZone.addEventListener('drop', handleFileDrop);
+
+        // Text content change handler
+        textContent.addEventListener('input', function () {
+            if (uploadedContent && uploadedContent instanceof File) {
+                uploadedContent = null; // Clear file when text is entered
+                resetUpload();
+            }
+        });
+    });
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.getElementById('uploadZone').classList.add('drag-over');
+    }
+
+    function handleDragLeave(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.getElementById('uploadZone').classList.remove('drag-over');
+    }
+
+    function handleFileDrop(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.getElementById('uploadZone').classList.remove('drag-over');
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            processFile(files[0]);
+        }
+    }
+
+    function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (file) {
+            processFile(file);
+        }
+    }
+
+    function processFile(file) {
+        const uploadZone = document.getElementById('uploadZone');
+        const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'text/markdown'];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+
+        // More flexible file type checking
+        if (!allowedTypes.includes(file.type) && !['pdf', 'docx', 'txt', 'md'].includes(fileExtension)) {
+            showError('Please upload a PDF, DOCX, TXT, or MD file.');
+            return;
+        }
+
+        if (file.size > 16 * 1024 * 1024) { // 16MB limit
+            showError('File size must be less than 16MB.');
+            return;
+        }
+
+        // Store uploaded file
+        uploadedContent = file;
+        document.getElementById('textContent').value = ''; // Clear text area
+
+        // Update the upload zone UI to show success state
+        uploadZone.innerHTML = `
+            <div class="upload-content">
+                <div class="upload-success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3>File uploaded successfully!</h3>
+                <p><strong>${file.name}</strong> (${formatFileSize(file.size)})</p>
+                <button class="upload-different-btn" onclick="resetUpload()">UPLOAD DIFFERENT FILE<span class="bolt">⚡</span></button>
+            </div>
+        `;
+
+        // Log to verify upload was processed
+        console.log("File processed successfully:", file.name);
+    }
+
+    function resetUpload() {
+        const uploadZone = document.getElementById('uploadZone');
+        uploadZone.innerHTML = `
+            <div class="upload-content">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <h3>Drop your files here</h3>
+                <p>or <button class="browse-upload-btn" onclick="document.getElementById('fileInput').click()">BROWSE TO UPLOAD</button></p>
+                <div class="supported-formats">
+                    <span class="format-tag">PDF</span>
+                    <span class="format-tag">DOCX</span>
+                    <span class="format-tag">TXT</span>
+                    <span class="format-tag">MD</span>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('fileInput').value = '';
+        uploadedContent = null;
+    }
+
+    async function generateStickyNotes() {
+        console.log("Generate sticky notes button clicked");
+
+        if (isGenerating) {
+            console.log("Already generating, please wait...");
+            return;
+        }
+
+        const generateBtn = document.querySelector('.generate-btn');
+        const originalBtnText = generateBtn.innerHTML;
+        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating Sticky Notes...';
+        generateBtn.disabled = true;
+
+        const resultsArea = document.getElementById('resultsArea');
+        resultsArea.style.display = 'block';
+        resultsArea.innerHTML = `
+            <div class="loading-container">
+                <div class="loading-spinner">
+                    <i class="fas fa-sticky-note fa-spin"></i>
+                </div>
+                <h3>Generating Smart Sticky Notes...</h3>
+                <p>AI is analyzing your content and creating color-coded notes</p>
+            </div>
+        `;
+
+        isGenerating = true;
+
+        try {
+            const formData = new FormData();
+            const textContent = document.getElementById('textContent').value.trim();
+
+            if (uploadedContent && typeof uploadedContent !== 'string') {
+                console.log("Sending file to API:", uploadedContent.name);
+                formData.append('file', uploadedContent);
+            } else if (textContent) {
+                console.log("Sending text to API");
+                formData.append('text', textContent);
+            } else {
+                showError('Please upload a file or enter text content first!');
+                isGenerating = false;
+                generateBtn.innerHTML = originalBtnText;
+                generateBtn.disabled = false;
+                return;
+            }
+
+            // Call FastAPI endpoint
+            const response = await fetch('/api/generate-sticky-notes', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                console.log("Sticky notes generated successfully:", result);
+                currentNotes = result;
+                displayStickyNoteResults(result);
+            } else {
+                console.error("Error generating sticky notes:", result);
+                showError(result.detail || 'Failed to generate sticky notes');
+                resultsArea.style.display = 'none';
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+            showError('Network error occurred. Please try again.');
+            resultsArea.style.display = 'none';
+        } finally {
+            isGenerating = false;
+            generateBtn.innerHTML = originalBtnText;
+            generateBtn.disabled = false;
+        }
+    }
+
+    function displayStickyNoteResults(notes) {
+        const resultsArea = document.getElementById('resultsArea');
+
+        if (!notes || notes.length === 0) {
+            resultsArea.innerHTML = `
+                <div class="no-results">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>No sticky notes generated</h3>
+                    <p>Please try with different content or check your input.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Generate HTML for sticky notes board
+        let notesHTML = '';
+
+        notes.forEach(note => {
+            notesHTML += `
+                <div class="sticky-note ${note.category}" data-id="${note.id}" data-priority="${note.priority}">
+                    <div class="note-header">
+                        <div class="note-priority">${getPriorityStars(note.priority)}</div>
+                        <div class="note-actions">
+                            <button class="note-btn" onclick="changeNoteCategory(this, '${note.id}')">
+                                <i class="fas fa-palette"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="note-content">${note.content}</div>
+                    <div class="note-tags">
+                        ${renderTags(note.tags)}
+                    </div>
+                </div>
+            `;
+        });
+
+        resultsArea.innerHTML = `
+            <div class="sticky-notes-container">
+                <div class="notes-filter">
+                    <button class="filter-btn active" onclick="filterNotes('all')">All Notes</button>
+                    <button class="filter-btn" onclick="filterNotes('red')">
+                        <span class="color-dot red"></span> Must Memorize
+                    </button>
+                    <button class="filter-btn" onclick="filterNotes('yellow')">
+                        <span class="color-dot yellow"></span> Important
+                    </button>
+                    <button class="filter-btn" onclick="filterNotes('green')">
+                        <span class="color-dot green"></span> Good to Know
+                    </button>
+                </div>
+                <div class="sticky-notes-grid">
+                    ${notesHTML}
+                </div>
+            </div>
+        `;
+
+        // Scroll to results
+        resultsArea.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function getPriorityStars(priority) {
+        const maxStars = 5;
+        const stars = Math.min(Math.max(Math.round(priority / 2), 1), maxStars);
+        
+        let starsHTML = '';
+        for (let i = 0; i < stars; i++) {
+            starsHTML += '<i class="fas fa-star"></i>';
+        }
+        return starsHTML;
+    }
+
+    function renderTags(tags) {
+        if (!tags || tags.length === 0) return '';
+        
+        return tags.map(tag => `<span class="note-tag">${tag}</span>`).join('');
+    }
+
+    function filterNotes(category) {
+        const notes = document.querySelectorAll('.sticky-note');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        
+        // Update active filter button
+        filterBtns.forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.filter-btn[onclick="filterNotes('${category}')"]`).classList.add('active');
+        
+        // Filter notes
+        notes.forEach(note => {
+            if (category === 'all' || note.classList.contains(category)) {
+                note.style.display = 'block';
+            } else {
+                note.style.display = 'none';
+            }
+        });
+    }
+
+    function changeNoteCategory(btn, noteId) {
+        const note = btn.closest('.sticky-note');
+        const currentCategory = note.classList.contains('red') ? 'red' : 
+                               note.classList.contains('yellow') ? 'yellow' : 'green';
+        
+        // Cycle through categories
+        let newCategory;
+        if (currentCategory === 'red') newCategory = 'yellow';
+        else if (currentCategory === 'yellow') newCategory = 'green';
+        else newCategory = 'red';
+        
+        // Remove current category and add new one
+        note.classList.remove('red', 'yellow', 'green');
+        note.classList.add(newCategory);
+        
+        // Update in the backend (optional)
+        updateNoteCategory(noteId, newCategory);
+    }
+
+    function updateNoteCategory(noteId, category) {
+        // Find note in current notes array and update
+        const noteIndex = currentNotes.findIndex(note => note.id === noteId);
+        if (noteIndex !== -1) {
+            currentNotes[noteIndex].category = category;
+            
+            // Optional: Send update to server
+            fetch(`/api/sticky-notes/${noteId}/category`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ category })
+            }).catch(err => console.error('Error updating note category:', err));
+        }
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.innerHTML = `
+            <i class="fas fa-exclamation-triangle"></i>
+            ${message}
+        `;
+        document.body.appendChild(errorDiv);
+
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 5000);
+    }
+
+    function showSuccess(message) {
+        const successDiv = document.createElement('div');
+        successDiv.className = 'success-message';
+        successDiv.innerHTML = `
+            <i class="fas fa-check-circle"></i>
+            ${message}
+        `;
+        document.body.appendChild(successDiv);
+
+        setTimeout(() => {
+            successDiv.remove();
+        }, 3000);
+    }
+</script>
+</body>
+</html>

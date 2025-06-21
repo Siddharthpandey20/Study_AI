@@ -1,0 +1,362 @@
+/* Mind Map Styles */
+        .mindmap-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-md);
+            min-height: 650px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mindmap-svg {
+            width: 100%;
+            height: 650px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .mindmap-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 650px;
+        }
+
+        .mindmap-node {
+            position: absolute;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            min-width: 140px;
+            text-align: center;
+        }
+
+        .mindmap-node:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-md);
+        }
+
+        .mindmap-node.central {
+            font-size: 1.4rem;
+            padding: 1.5rem 2rem;
+            border-width: 3px;
+            transform: scale(1.1);
+        }
+
+        .mindmap-node.level-2 {
+            font-size: 0.95rem;
+            padding: 0.8rem 1.2rem;
+        }
+        body.dark-mode .mindmap-container {
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+        
+        .mindmap-form {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+        
+        .mindmap-form textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        .mindmap-form button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .mindmap-form button:hover {
+            opacity: 0.9;
+        }
+        
+        .mindmap-form .sample-btn {
+            background: var(--secondary);
+            margin-left: 10px;
+        }
+
+        .mindmap-colors {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .color-option.selected {
+            border-color: white;
+            transform: scale(1.1);
+        }
+
+        <div class="feature-card mindmap-card" onclick="generateContent('mindmap')">
+            <div class="feature-icon">
+                <i class="fas fa-project-diagram"></i>
+            </div>
+            <h3 class="feature-title">Mind Map Generator</h3>
+            <p class="feature-description">
+                Create stunning, interactive mind maps to visualize and connect concepts effortlessly.
+            </p>
+        </div>   
+        function displayResults(type, data) {
+            const resultsSection = document.getElementById('results-section');
+            let html = '';
+
+            switch(type) {
+                case 'flashcards': html = createFlashcardsHTML(data); break;
+                case 'mcqs': html = createMCQsHTML(data); break;
+                case 'mindmap': html = createMindMapHTML(data); break;
+                case 'learning-path': html = createLearningPathHTML(data); break;
+                case 'sticky-notes': html = createStickyNotesHTML(data); break;
+                case 'exam-questions': html = createExamQuestionsHTML(data); break;
+            }
+
+            resultsSection.innerHTML = html;
+            resultsSection.style.display = 'block';
+            
+            // Animate results
+            setTimeout(() => {
+                resultsSection.querySelectorAll('.animate-in').forEach((el, index) => {
+                    setTimeout(() => {
+                        el.style.opacity = '1';
+                        el.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+            }, 100);
+        }
+
+        function createMindMapHTML(mindmap) {
+            let html = `
+                <div style="background: var(--glass); backdrop-filter: blur(12px); border-radius: 20px; padding: 2.5rem;">
+                    <div class="mindmap-form">
+                        <h3>Create Your Mind Map</h3>
+                        <p>Enter your mind map data below. Format: Main topic on first line, then one subtopic per line. Add child topics with a dash (-).</p>
+                        <textarea id="mindmap-data" placeholder="Web Development
+Frontend - HTML
+Frontend - CSS
+Frontend - JavaScript
+Backend - Node.js
+Backend - Databases
+Backend - APIs"></textarea>
+                        <div class="mindmap-colors">
+                            <div class="color-option selected" style="background: #8b5cf6;" data-color="#8b5cf6"></div>
+                            <div class="color-option" style="background: #ec4899;" data-color="#ec4899"></div>
+                            <div class="color-option" style="background: #f59e0b;" data-color="#f59e0b"></div>
+                            <div class="color-option" style="background: #10b981;" data-color="#10b981"></div>
+                            <div class="color-option" style="background: #3b82f6;" data-color="#3b82f6"></div>
+                        </div>
+                        <button onclick="generateMindMapFromInput()">Generate Mind Map</button>
+                        <button class="sample-btn" onclick="loadSampleMindMap()">Load Sample</button>
+                    </div>
+                    <h2 class="text-center" style="color: white; margin-bottom: 2rem;">
+                        <i class="fas fa-project-diagram" style="color: #facc15;"></i> ${mindmap.title || 'Your Mind Map'}
+                    </h2>
+                    <div class="mindmap-container animate-in" style="opacity: 0; transform: translateY(20px);">
+                        <svg class="mindmap-svg" viewBox="0 0 800 650"></svg>
+                        <div class="mindmap-content">
+                            <div class="mindmap-node central" style="top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--primary);">
+                                ${mindmap.title || 'Main Topic'}
+                            </div>
+            `;
+
+            if (mindmap.nodes && mindmap.nodes.length > 0) {
+                const centerX = 400;
+                const centerY = 325;
+                const radius = 220;
+                
+                mindmap.nodes.forEach((node, index) => {
+                    const angle = (index * 2 * Math.PI) / mindmap.nodes.length;
+                    const x = centerX + radius * Math.cos(angle);
+                    const y = centerY + radius * Math.sin(angle);
+                    const xPercent = (x / 800) * 100;
+                    const yPercent = (y / 650) * 100;
+
+                    html += `
+                        <div class="mindmap-node" style="top: ${yPercent}%; left: ${xPercent}%; background: ${node.color || 'var(--secondary)'}; transform: translate(-50%, -50%);" data-id="${node.id}">
+                            ${node.label}
+                        </div>
+                    `;
+
+                    if (node.children && node.children.length > 0) {
+                        node.children.forEach((child, childIndex) => {
+                            const childAngle = angle + ((childIndex - (node.children.length - 1) / 2) * 0.8);
+                            const childRadius = radius + 140;
+                            const childX = centerX + childRadius * Math.cos(childAngle);
+                            const childY = centerY + childRadius * Math.sin(childAngle);
+                            const childXPercent = (childX / 800) * 100;
+                            const childYPercent = (childY / 650) * 100;
+
+                            html += `
+                                <div class="mindmap-node level-2" style="top: ${childYPercent}%; left: ${childXPercent}%; background: ${child.color || '#2dd4bf'}; transform: translate(-50%, -50%);" data-id="${child.id}">
+                                    ${child.label}
+                                </div>
+                            `;
+                        });
+                    }
+                });
+            }
+            html += `
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            setTimeout(() => drawMindMapConnections(mindmap), 100);
+            return html;
+        }
+        
+        function generateMindMapFromInput() {
+            const textareaData = document.getElementById('mindmap-data').value.trim();
+            if (!textareaData) {
+                alert('Please enter some mind map data');
+                return;
+            }
+            
+            const lines = textareaData.split('\n');
+            const mainTopic = lines[0];
+            const selectedColor = document.querySelector('.color-option.selected').getAttribute('data-color');
+            
+            const mindmapData = {
+                title: mainTopic,
+                nodes: []
+            };
+            
+            const nodesByLabel = {};
+            
+            // Process subtopics
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                if (line.includes(' - ')) {
+                    // This is a child node
+                    const [parentLabel, childLabel] = line.split(' - ').map(s => s.trim());
+                    
+                    if (!nodesByLabel[parentLabel]) {
+                        // Create parent node if it doesn't exist
+                        const parentNode = {
+                            id: 'node-' + mindmapData.nodes.length,
+                            label: parentLabel,
+                            color: selectedColor,
+                            children: []
+                        };
+                        mindmapData.nodes.push(parentNode);
+                        nodesByLabel[parentLabel] = parentNode;
+                    }
+                    
+                    // Add child to parent
+                    nodesByLabel[parentLabel].children.push({
+                        id: 'child-' + parentLabel.replace(/\s+/g, '-') + '-' + childLabel.replace(/\s+/g, '-'),
+                        label: childLabel,
+                        color: selectedColor
+                    });
+                } else {
+                    // This is a main node without children yet
+                    if (!nodesByLabel[line]) {
+                        const node = {
+                            id: 'node-' + mindmapData.nodes.length,
+                            label: line,
+                            color: selectedColor,
+                            children: []
+                        };
+                        mindmapData.nodes.push(node);
+                        nodesByLabel[line] = node;
+                    }
+                }
+            }
+            
+            displayResults('mindmap', mindmapData);
+        }
+        
+        function loadSampleMindMap() {
+            const sampleData = `Learning JavaScript
+Core Concepts - Variables
+Core Concepts - Functions
+Core Concepts - Objects
+DOM - Selectors
+DOM - Events
+DOM - Manipulation
+Frameworks - React
+Frameworks - Vue
+Frameworks - Angular`;
+            
+            document.getElementById('mindmap-data').value = sampleData;
+        }
+        
+        // Set up color selection
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+        });
+
+        function drawMindMapConnections(mindmap) {
+            const svg = document.querySelector('.mindmap-svg');
+            if (!svg) return;
+
+            const centerX = 400;
+            const centerY = 325;
+            const radius = 220;
+            let connections = '';
+
+            if (mindmap.nodes) {
+                mindmap.nodes.forEach((node, index) => {
+                    const angle = (index * 2 * Math.PI) / mindmap.nodes.length;
+                    const x = centerX + radius * Math.cos(angle);
+                    const y = centerY + radius * Math.sin(angle);
+
+                    connections += `
+                        <line x1="${centerX}" y1="${centerY}" x2="${x}" y2="${y}" 
+                              stroke="var(--primary)" stroke-width="3" opacity="0.7" 
+                              stroke-dasharray="5,5">
+                            <animate attributeName="stroke-dashoffset" 
+                                     values="0;-10" dur="1s" repeatCount="indefinite"/>
+                        </line>
+                    `;
+
+                    if (node.children) {
+                        node.children.forEach((child, childIndex) => {
+                            const childAngle = angle + ((childIndex - (node.children.length - 1) / 2) * 0.8);
+                            const childRadius = radius + 140;
+                            const childX = centerX + childRadius * Math.cos(childAngle);
+                            const childY = centerY + childRadius * Math.sin(childAngle);
+
+                            connections += `
+                                <line x1="${x}" y1="${y}" x2="${childX}" y2="${childY}" 
+                                      stroke="${node.color || 'var(--secondary)'}" stroke-width="2" opacity="0.6"/>
+                            `;
+                        });
+                    }
+                });
+            }
+
+            svg.innerHTML = connections;
+        }

@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Groups - StudyAI</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #5b21b6;
+            --primary-dark: #4c1d95;
+            --secondary: #f472b6;
+            --accent: #34d399;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --success: #10b981;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --glass: rgba(255, 255, 255, 0.15);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #6d28d9 0%, #ec4899 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        .header {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            color: var(--accent);
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 8rem 2rem 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 3rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .groups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .group-card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .group-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-md);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .group-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .group-key {
+            background: var(--accent);
+            color: var(--dark);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .group-role {
+            background: var(--warning);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .group-role.admin {
+            background: var(--primary);
+        }
+
+        .group-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .stat i {
+            color: var(--accent);
+        }
+
+        .group-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            border-radius: 8px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 2.5rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-md);
+            animation: modalFadeIn 0.4s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .close {
+            color: #64748b;
+            float: right;
+            font-size: 1.8rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: var(--dark);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(91, 33, 182, 0.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 2rem;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .empty-text {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .page-title { font-size: 2.5rem; }
+            .action-buttons { flex-direction: column; align-items: center; }
+            .groups-grid { grid-template-columns: 1fr; }
+            .group-stats { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <a href="/" class="logo">
+                <i class="fas fa-brain"></i> StudyAI
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/groups" class="nav-link">Study Groups</a>
+                <a href="/doc-chat" class="nav-link">Q&A</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Study Groups</h1>
+            <p class="page-subtitle">
+                Collaborate with others, share documents, and generate AI-powered study materials together
+            </p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="openCreateGroupModal()">
+                <i class="fas fa-plus"></i> Create Group
+            </button>
+            <button class="btn btn-secondary" onclick="openJoinGroupModal()">
+                <i class="fas fa-sign-in-alt"></i> Join Group
+            </button>
+        </div>
+
+        <!-- Groups Grid -->
+        <div id="groupsContainer">
+            <!-- Groups will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Create Group Modal -->
+    <div id="createGroupModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCreateGroupModal()">×</span>
+            <h2 style="margin-bottom: 2rem;">
+                <i class="fas fa-users" style="color: var(--primary);"></i> Create Study Group
+            </h2>
+            <form id="createGroupForm">
+                <div class="form-group">
+                    <label class="form-label">Group Name</label>
+                    <input type="text" id="groupName" class="form-input" 
+                           placeholder="Enter group name..." required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-plus"></i> Create Group
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Join Group Modal -->
+    <div id="joinGroupModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeJoinGroupModal()">×</span>
+            <h2 style="margin-bottom: 2rem;">
+                <i class="fas fa-sign-in-alt" style="color: var(--primary);"></i> Join Study Group
+            </h2>
+            <form id="joinGroupForm">
+                <div class="form-group">
+                    <label class="form-label">Group Key</label>
+                    <input type="text" id="groupKey" class="form-input" 
+                           placeholder="Enter group key..." required style="text-transform: uppercase;">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-sign-in-alt"></i> Join Group
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Group Key Display Modal -->
+    <div id="groupKeyModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeGroupKeyModal()">×</span>
+            <h2 style="margin-bottom: 2rem; text-align: center;">
+                <i class="fas fa-check-circle" style="color: var(--success);"></i> Group Created!
+            </h2>
+            <div style="text-align: center;">
+                <p style="margin-bottom: 1rem; color: #64748b;">Share this key with others to invite them:</p>
+                <div style="background: var(--light); padding: 2rem; border-radius: 12px; margin-bottom: 2rem;">
+                    <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 1rem;" id="displayGroupKey">
+                        ABCD1234
+                    </div>
+                    <button class="btn btn-secondary btn-small" onclick="copyGroupKey()">
+                        <i class="fas fa-copy"></i> Copy Key
+                    </button>
+                </div>
+                <button class="btn btn-primary" onclick="closeGroupKeyModal()">
+                    <i class="fas fa-arrow-right"></i> Go to Groups
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentUser = null;
+        let groups = [];
+
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+        });
+
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/user/profile');
+                const data = await response.json();
+                
+                if (data.user) {
+                    currentUser = data.user;
+                    loadGroups();
+                } else {
+                    // Redirect to login
+                    window.location.href = '/auth/login';
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = '/';
+            }
+        }
+
+        async function loadGroups() {
+            try {
+                const response = await fetch('/api/groups', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                groups = data.groups || [];
+                displayGroups();
+            } catch (error) {
+                console.error('Error loading groups:', error);
+                displayEmptyState();
+            }
+        }
+
+        function displayGroups() {
+            const container = document.getElementById('groupsContainer');
+            
+            if (!groups || groups.length === 0) {
+                displayEmptyState();
+                return;
+            }
+
+            let html = '<div class="groups-grid">';
+            
+            groups.forEach(group => {
+                html += `
+                    <div class="group-card" onclick="openGroup(${group.id})">
+                        <div class="group-header">
+                            <div>
+                                <div class="group-name">${group.name}</div>
+                                <div class="group-key">${group.group_key}</div>
+                            </div>
+                            <div class="group-role ${group.role}">${group.role.toUpperCase()}</div>
+                        </div>
+                        <div class="group-stats">
+                            <div class="stat">
+                                <i class="fas fa-users"></i>
+                                <span>${group.member_count} members</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-file-alt"></i>
+                                <span>${group.document_count} documents</span>
+                            </div>
+                        </div>
+                        <div class="group-actions">
+                            <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); openGroup(${group.id})">
+                                <i class="fas fa-folder-open"></i> Open
+                            </button>
+                            <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); copyGroupKey('${group.group_key}')">
+                                <i class="fas fa-share"></i> Share
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function displayEmptyState() {
+            const container = document.getElementById('groupsContainer');
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="empty-title">No Study Groups Yet</h3>
+                    <p class="empty-text">Create your first study group or join an existing one using a group key</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center;">
+                        <button class="btn btn-primary" onclick="openCreateGroupModal()">
+                            <i class="fas fa-plus"></i> Create Group
+                        </button>
+                        <button class="btn btn-secondary" onclick="openJoinGroupModal()">
+                            <i class="fas fa-sign-in-alt"></i> Join Group
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Modal functions
+        function openCreateGroupModal() {
+            document.getElementById('createGroupModal').style.display = 'block';
+            document.getElementById('groupName').focus();
+        }
+
+        function closeCreateGroupModal() {
+            document.getElementById('createGroupModal').style.display = 'none';
+            document.getElementById('createGroupForm').reset();
+        }
+
+        function openJoinGroupModal() {
+            document.getElementById('joinGroupModal').style.display = 'block';
+            document.getElementById('groupKey').focus();
+        }
+
+        function closeJoinGroupModal() {
+            document.getElementById('joinGroupModal').style.display = 'none';
+            document.getElementById('joinGroupForm').reset();
+        }
+
+        function closeGroupKeyModal() {
+            document.getElementById('groupKeyModal').style.display = 'none';
+            loadGroups(); // Refresh groups
+        }
+
+        // Form handlers
+        document.getElementById('createGroupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const groupName = document.getElementById('groupName').value.trim();
+            if (!groupName) return;
+
+            try {
+                const formData = new FormData();
+                formData.append('name', groupName);
+
+                const response = await fetch('/api/groups/create', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    closeCreateGroupModal();
+                    document.getElementById('displayGroupKey').textContent = data.group.group_key;
+                    document.getElementById('groupKeyModal').style.display = 'block';
+                } else {
+                    alert('Error creating group');
+                }
+            } catch (error) {
+                console.error('Error creating group:', error);
+                alert('Error creating group. Please try again.');
+            }
+        });
+
+        document.getElementById('joinGroupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const groupKey = document.getElementById('groupKey').value.trim().toUpperCase();
+            if (!groupKey) return;
+
+            try {
+                const formData = new FormData();
+                formData.append('group_key', groupKey);
+
+                const response = await fetch('/api/groups/join', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    closeJoinGroupModal();
+                    alert(`Successfully joined "${data.group.name}"!`);
+                    loadGroups();
+                } else {
+                    alert('Error joining group');
+                }
+            } catch (error) {
+                console.error('Error joining group:', error);
+                alert(error.message || 'Group not found or error occurred');
+            }
+        });
+
+        function copyGroupKey(key) {
+            const keyToCopy = key || document.getElementById('displayGroupKey').textContent;
+            navigator.clipboard.writeText(keyToCopy).then(() => {
+                alert('Group key copied to clipboard!');
+            });
+        }
+
+        function openGroup(groupId) {
+            window.location.href = `/group/${groupId}`;
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

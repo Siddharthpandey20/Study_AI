@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyAI - AI-Powered Learning Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+
+<body>
+    <!-- Enhanced Header -->
+    <header class="header" id="pageHeader">
+        <nav class="nav">
+            <button id="sidebarToggle" class="hamburger-toggle" aria-label="Toggle navigation">
+                <i class="fas fa-bars icon-open"></i>
+                <i class="fas fa-times icon-close" style="display:none;"></i>
+            </button>
+            <a href="/" class="logo">
+                <i class="fas fa-brain"></i> StudyAI
+            </a>
+
+            <div class="nav-links">
+                <a href="#features" class="nav-link">
+                    <i class="fas fa-star"></i> Features
+                </a>
+                <a href="/groups" class="nav-link">
+                    <i class="fas fa-users"></i> Study Groups
+                </a>
+                <a href="#about" class="nav-link">
+                    <i class="fas fa-info-circle"></i> About
+                </a>
+                <a href="#contact" class="nav-link">
+                    <i class="fas fa-envelope"></i> Contact
+                </a>
+
+                <!-- User Profile Dropdown (Hidden by default) -->
+                <div class="user-profile" id="userProfile" style="display: none;">
+                    <img id="userAvatar" class="user-avatar" src="" alt="User Avatar" onclick="toggleDropdown()">
+                    <span id="userName"></span>
+                    <div class="dropdown-menu" id="dropdownMenu">
+                        <a href="#" class="dropdown-item" onclick="viewAccount()">
+                            <i class="fas fa-user"></i> My Account
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="viewMyDocuments()">
+                            <i class="fas fa-folder"></i> My Documents
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Login Button (Visible by default) -->
+                <button class="login-btn" id="loginBtn" onclick="login()">
+                    <i class="fab fa-google"></i> Sign in with Google
+                </button>
+
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Clean Sidebar - Matching your screenshot -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="logo">
+                <i class="fas fa-brain"></i> StudyAI
+            </a>
+            <button id="sidebarClose" class="sidebar-close-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <h4 class="nav-section-title">AI Study Tools</h4>
+                <ul>
+                    <li><a href="flashcards.html"><i class="fas fa-brain"></i> Smart Flashcards</a></li>
+                    <li><a href="mindmap.html"><i class="fas fa-project-diagram"></i> Mind Map Generator</a></li>
+                    <li><a href="learning-path.html"><i class="fas fa-route"></i> Learning Path</a></li>
+                    <li><a href="sticky-notes.html"><i class="fas fa-sticky-note"></i> Smart Sticky Notes</a></li>
+                    <li><a href="exam-booster.html"><i class="fas fa-trophy"></i> Exam Booster</a></li>
+                    <li><a href="youtube-summarizer.html"><i class="fab fa-youtube"></i> YouTube Summarizer</a></li>
+                    <li><a href="doc-chat.html"><i class="fas fa-comments"></i> Document Chat</a></li>
+                </ul>
+            </div>
+            <div class="nav-section">
+                <h4 class="nav-section-title">Resources & Help</h4>
+                <ul>
+                    <li><a href="#about"><i class="fas fa-info-circle"></i> About StudyAI</a></li>
+                    <li><a href="#contact"><i class="fas fa-envelope"></i> Contact Us</a></li>
+                    <li><a href="#help"><i class="fas fa-question-circle"></i> Help Center</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <i class="fas fa-moon"></i> <span>Light Mode</span>
+            </button>
+            <button class="btn get-started-sidebar-btn" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-rocket"></i> Get Started
+            </button>
+        </div>
+    </aside>
+
+    <!-- Particle System -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Floating Shapes -->
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Hero Background -->
+        <div class="hero-bg"></div>
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <!-- Holographic Effect -->
+            <div class="hero-hologram">
+                <div class="hologram-ring"></div>
+                <div class="hologram-ring"></div>
+                <div class="hologram-ring"></div>
+            </div>
+
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fas fa-sparkles"></i>
+                    <span>Powered by advanced AI</span>
+                </div>
+
+                <h1 class="hero-title">
+                    Transform your learning with
+                    <span class="highlight">AI-powered study tools</span>
+                </h1>
+
+                <p class="hero-subtitle">
+                    Upload your study materials and transform them into interactive learning experiences with
+                    cutting-edge AI technology that adapts to your learning style
+                </p>
+
+                <a href="#features" class="explore-btn">
+                    <i class="fas fa-rocket"></i>
+                    Explore Features
+                </a>
+            </div>
+        </section>
+
+        <!-- Features Section - Properly positioned -->
+        <section class="features-section" id="features">
+            <div class="features-header">
+                <h2>Powerful AI Learning Tools</h2>
+                <p>Transform your study materials into interactive learning experiences with cutting-edge AI technology
+                </p>
+            </div>
+
+            <div class="studyx-features">
+                <!-- Row 1: Smart Revision Mode -->
+                <div class="feature-row">
+                    <div class="question-card" onclick="window.location.href='flashcards.html'">
+                        <div class="question-header">
+                            <div class="question-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="question-title">Feature Demo</div>
+                            <div class="question-time">AI Generated</div>
+                        </div>
+                        <div class="question-content">
+                            <div class="flashcard-mockup">
+                                <h4>Smart Flashcards</h4>
+                                <p>Interactive revision cards with difficulty levels</p>
+                                <div style="margin-top: 1rem;">
+                                    <i class="fas fa-brain" style="font-size: 2rem;"></i>
+                                </div>
+                            </div>
+                            <div class="community-verified">AI-Powered</div>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Smart Revision Mode</h3>
+                        <p>Generate interactive flashcards and MCQ quizzes from your notes for efficient revision and
+                            self-assessment with AI-powered difficulty adaptation.</p>
+                        <button class="btn" onclick="window.location.href='flashcards.html'">
+                            <i class="fas fa-brain"></i>
+                            Generate Flashcards
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Row 2: Mind Map Generator -->
+                <div class="feature-row">
+                    <div class="visual-card" onclick="window.location.href='mindmap.html'">
+                        <div class="visual-header">
+                            <h4><i class="fas fa-project-diagram"></i> Mind Map</h4>
+                            <div class="window-controls">
+                                <span class="control red"></span>
+                                <span class="control yellow"></span>
+                                <span class="control green"></span>
+                            </div>
+                        </div>
+                        <div class="mindmap-mockup">
+                            <div class="mindmap-nodes">
+                                <div class="node">Central Topic</div>
+                                <div style="display: flex; gap: 1rem;">
+                                    <div class="node">Branch 1</div>
+                                    <div class="node">Branch 2</div>
+                                </div>
+                                <div class="node">Sub-concepts</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Mind Map Generator</h3>
+                        <p>Create stunning, interactive mind maps to visualize and connect concepts effortlessly.
+                            Transform complex topics into clear visual hierarchies.</p>
+                        <button class="btn" onclick="window.location.href='mindmap.html'">
+                            <i class="fas fa-project-diagram"></i>
+                            Create Mind Map
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Row 3: Learning Path Generator -->
+                <div class="feature-row">
+                    <div class="visual-card" onclick="window.location.href='learning-path.html'">
+                        <div class="visual-header">
+                            <h4><i class="fas fa-route"></i> Learning Path</h4>
+                            <div class="window-controls">
+                                <span class="control red"></span>
+                                <span class="control yellow"></span>
+                                <span class="control green"></span>
+                            </div>
+                        </div>
+                        <div class="learning-path-mockup">
+                            <div class="path-step">
+                                <div class="step-number">1</div>
+                                <div>Foundation Concepts</div>
+                            </div>
+                            <div class="path-step">
+                                <div class="step-number">2</div>
+                                <div>Core Topics</div>
+                            </div>
+                            <div class="path-step">
+                                <div class="step-number">3</div>
+                                <div>Advanced Applications</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Learning Path Generator</h3>
+                        <p>Receive a tailored study plan to master topics in the most effective order. AI analyzes your
+                            content and creates an optimized learning sequence.</p>
+                        <button class="btn" onclick="window.location.href='learning-path.html'">
+                            <i class="fas fa-route"></i>
+                            Generate Path
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Row 4: Smart Sticky Notes -->
+                <div class="feature-row">
+                    <div class="visual-card" onclick="window.location.href='sticky-notes.html'">
+                        <div class="visual-header">
+                            <h4><i class="fas fa-sticky-note"></i> Sticky Notes</h4>
+                            <div class="window-controls">
+                                <span class="control red"></span>
+                                <span class="control yellow"></span>
+                                <span class="control green"></span>
+                            </div>
+                        </div>
+                        <div class="sticky-notes-mockup">
+                            <div class="sticky-note-mock red">
+                                🔴 Must Memorize
+                            </div>
+                            <div class="sticky-note-mock yellow">
+                                🟡 Good to Know
+                            </div>
+                            <div class="sticky-note-mock green">
+                                🟢 Bonus Info
+                            </div>
+                            <div class="sticky-note-mock red">
+                                Critical Facts
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Smart Sticky Notes</h3>
+                        <p>AI-generated, color-coded notes for critical facts, important concepts, and bonus
+                            information. Organize knowledge with intelligent categorization.</p>
+                        <button class="btn" onclick="window.location.href='sticky-notes.html'">
+                            <i class="fas fa-sticky-note"></i>
+                            Create Notes
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Row 5: Exam Booster Mode -->
+                <div class="feature-row">
+                    <div class="visual-card" onclick="window.location.href='exam-booster.html'">
+                        <div class="visual-header">
+                            <h4><i class="fas fa-trophy"></i> Exam Booster</h4>
+                            <div class="window-controls">
+                                <span class="control red"></span>
+                                <span class="control yellow"></span>
+                                <span class="control green"></span>
+                            </div>
+                        </div>
+                        <div class="exam-booster-mockup">
+                            <div class="exam-question-mock">
+                                <div style="font-weight: 600; margin-bottom: 0.5rem;">High Probability Question</div>
+                                <div class="probability-bar">
+                                    <div class="probability-fill" style="width: 85%;"></div>
+                                </div>
+                                <div style="font-size: 0.9rem; color: var(--text-secondary);">85% likely to appear</div>
+                            </div>
+                            <div class="exam-question-mock">
+                                <div style="font-weight: 600; margin-bottom: 0.5rem;">Medium Probability</div>
+                                <div class="probability-bar">
+                                    <div class="probability-fill" style="width: 60%;"></div>
+                                </div>
+                                <div style="font-size: 0.9rem; color: var(--text-secondary);">60% likely to appear</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Exam Booster Mode</h3>
+                        <p>Predict high-probability exam questions with categorized types and probability scores.
+                            Maximize your exam preparation efficiency.</p>
+                        <button class="btn" onclick="window.location.href='exam-booster.html'">
+                            <i class="fas fa-trophy"></i>
+                            Boost Exam Prep
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Row 6: YouTube Summarizer -->
+                <div class="feature-row">
+                    <div class="visual-card" onclick="window.location.href='youtube-summarizer.html'">
+                        <div class="visual-header">
+                            <h4><i class="fab fa-youtube"></i> Video Summarizer</h4>
+                            <div class="window-controls">
+                                <span class="control red"></span>
+                                <span class="control yellow"></span>
+                                <span class="control green"></span>
+                            </div>
+                        </div>
+                        <div class="youtube-mockup">
+                            <div class="youtube-play">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>YouTube Summarizer</h3>
+                        <p>Summarize educational YouTube videos instantly and generate study materials from them.
+                            Transform video content into structured learning resources.</p>
+                        <button class="btn" onclick="window.location.href='youtube-summarizer.html'">
+                            <i class="fab fa-youtube"></i>
+                            Summarize Video
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Row 7: PDF Q&A -->
+                <div class="feature-row">
+                    <div class="visual-card" onclick="window.location.href='pdf-qa.html'">
+                        <div class="visual-header">
+                            <h4><i class="fas fa-file-pdf"></i> PDF Q&A</h4>
+                            <div class="window-controls">
+                                <span class="control red"></span>
+                                <span class="control yellow"></span>
+                                <span class="control green"></span>
+                            </div>
+                        </div>
+                        <div class="pdf-qa-mockup" style="flex: 1; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-radius: 15px; padding: 2rem; color: white; text-align: center; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
+                                <strong>Q:</strong> What is the main concept?
+                            </div>
+                            <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 10px;">
+                                <strong>A:</strong> Based on the PDF content...
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>PDF Q&A Generator</h3>
+                        <p>Upload PDF documents and ask questions or generate comprehensive Q&A pairs automatically.
+                            Perfect for document analysis and study preparation.</p>
+                        <button class="btn" onclick="window.location.href='pdf-qa.html'">
+                            <i class="fas fa-file-pdf"></i>
+                            Analyze PDFs
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Row 8: Document Chat -->
+                <div class="feature-row">
+                    <div class="visual-card" onclick="window.location.href='doc-chat.html'">
+                        <div class="visual-header">
+                            <h4><i class="fas fa-comments"></i> Document Chat</h4>
+                            <div class="window-controls">
+                                <span class="control red"></span>
+                                <span class="control yellow"></span>
+                                <span class="control green"></span>
+                            </div>
+                        </div>
+                        <div class="doc-chat-mockup">
+                            <div class="chat-bubble" style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 15px; font-size: 0.9rem; margin-bottom: 1rem; text-align: right;">
+                                What is the main topic?
+                            </div>
+                            <div class="chat-bubble" style="background: rgba(255, 255, 255, 0.3); padding: 1rem; border-radius: 15px; font-size: 0.9rem; margin-bottom: 1rem;">
+                                Based on your document, the main topic is...
+                            </div>
+                            <div style="background: rgba(255, 255, 255, 0.2); padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                                <i class="fas fa-message"></i> Ask anything about your document...
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h3>Document Q&A Chat</h3>
+                        <p>Upload documents and have intelligent conversations with your content. Ask questions, get summaries, and explore your materials through AI-powered chat.</p>
+                        <button class="btn" onclick="window.location.href='doc-chat.html'">
+                            <i class="fas fa-comments"></i>
+                            Start Chatting
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Animated Feature Cards Footer -->
+        <section class="feature-cards-footer">
+            <div class="feature-cards-container">
+                <div class="feature-cards-header">
+                    <h2>Your <span class="highlight">One-Stop Solution</span> for All Academic Needs</h2>
+                    <p>Discover why millions of students trust our AI-powered learning platform</p>
+                </div>
+
+                <div class="feature-cards-grid">
+                    <div class="feature-cards-track">
+                        <div class="feature-card-animated">
+                            <div class="feature-icon-large">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3>Affordable & Secure</h3>
+                            <p>We believe that every student in the world deserves education in the cheapest way possible.</p>
+                            <div class="feature-stats">
+                                <div class="feature-badge">$15/month</div>
+                                <div class="feature-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="feature-card-animated">
+                            <div class="feature-card-number">1+</div>
+                            <h3>Million Students</h3>
+                            <p>Students have gained an academic advantage with StudyAI's intelligent learning tools.</p>
+                            <div class="feature-stats">
+                                <div class="feature-badge">Trusted Worldwide</div>
+                                <div class="feature-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="feature-card-animated">
+                            <div class="feature-icon-large">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <h3>For University And College Students</h3>
+                            <p>Tailored for university and college students seeking improved grades and learning outcomes.</p>
+                            <div class="feature-stats">
+                                <div class="feature-badge">Academic Focus</div>
+                                <div class="feature-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="feature-card-animated">
+                            <div class="feature-icon-large">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h3>One Stop Solution</h3>
+                            <p>Eliminating the need for multiple subscriptions from different providers with our comprehensive AI toolkit.</p>
+                            <div class="feature-stats">
+                                <div class="feature-badge">All-in-One</div>
+                                <div class="feature-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="feature-card-animated">
+                            <div class="feature-icon-large">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h3>Student Focused</h3>
+                            <p>We offer a comprehensive academic toolkit for students, eliminating the need for several platforms for various services.</p>
+                            <div class="feature-stats">
+                                <div class="feature-badge">24/7 Support</div>
+                                <div class="feature-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Duplicate cards for seamless loop -->
+                        <div class="feature-card-animated">
+                            <div class="feature-icon-large">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3>Affordable & Secure</h3>
+                            <p>We believe that every student in the world deserves education in the cheapest way possible.</p>
+                            <div class="feature-stats">
+                                <div class="feature-badge">$15/month</div>
+                                <div class="feature-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="feature-card-animated">
+                            <div class="feature-card-number">1+</div>
+                            <h3>Million Students</h3>
+                            <p>Students have gained an academic advantage with StudyAI's intelligent learning tools.</p>
+                            <div class="feature-stats">
+                                <div class="feature-badge">Trusted Worldwide</div>
+                                <div class="feature-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="feature-card-animated">
+                            <div class="feature-icon-large">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <h3>For University And College Students</h3>
+                            <p>Tailored for university and college students seeking improved grades and learning outcomes.</p>
+                            <div class="feature-stats">
+                                <div class="feature-badge">Academic Focus</div>
+                                <div class="feature-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="feature-card-animated">
+                            <div class="feature-icon-large">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h3>One Stop Solution</h3>
+                            <p>Eliminating the need for multiple subscriptions from different providers with our comprehensive AI toolkit.</p>
+                            <div class="feature-stats">
+                                <div class="feature-badge">All-in-One</div>
+                                <div class="feature-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="feature-card-animated">
+                            <div class="feature-icon-large">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h3>Student Focused</h3>
+                            <p>We offer a comprehensive academic toolkit for students, eliminating the need for several platforms for various services.</p>
+                            <div class="feature-stats">
+                                <div class="feature-badge">24/7 Support</div>
+                                <div class="feature-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials-section">
+            <div class="testimonials-container">
+                <div class="testimonials-header">
+                    <h2>What Our <span class="students-text">Students</span> <span class="say-text">Say</span></h2>
+                </div>
+
+                <div class="testimonials-carousel" id="testimonialsCarousel">
+                    <div class="testimonials-track" id="testimonialsTrack">
+                        <!-- Testimonial 1 -->
+                        <div class="testimonial-slide">
+                            <div class="testimonial-stars">
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                            </div>
+                            <div class="testimonial-quote">
+                                I use StudyAI for all my practice tests now. It's like having a personal tutor available 24/7. The detailed explanations helped me understand complex theories I was struggling with.
+                            </div>
+                            <div class="testimonial-author">
+                                <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face" alt="Emma Thompson" class="author-avatar">
+                                <div class="author-info">
+                                    <h4>Emma T.</h4>
+                                    <p>Psychology Student</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Testimonial 2 -->
+                        <div class="testimonial-slide">
+                            <div class="testimonial-stars">
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                            </div>
+                            <div class="testimonial-quote">
+                                StudyAI completely transformed my study routine. The mind maps and flashcards generated from my notes saved me hours of preparation time and improved my retention significantly.
+                            </div>
+                            <div class="testimonial-author">
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" alt="James Wilson" class="author-avatar">
+                                <div class="author-info">
+                                    <h4>James W.</h4>
+                                    <p>Computer Science Student</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Testimonial 3 -->
+                        <div class="testimonial-slide">
+                            <div class="testimonial-stars">
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                            </div>
+                            <div class="testimonial-quote">
+                                The AI-powered study tools are incredible! I went from struggling with organic chemistry to acing my exams. The personalized learning paths made all the difference.
+                            </div>
+                            <div class="testimonial-author">
+                                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face" alt="Sarah Chen" class="author-avatar">
+                                <div class="author-info">
+                                    <h4>Sarah C.</h4>
+                                    <p>Chemistry Major</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Testimonial 4 -->
+                        <div class="testimonial-slide">
+                            <div class="testimonial-stars">
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                            </div>
+                            <div class="testimonial-quote">
+                                StudyAI's exam booster feature predicted 80% of the questions on my final exam! The probability scoring system is amazingly accurate. Best investment ever!
+                            </div>
+                            <div class="testimonial-author">
+                                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" alt="Michael Rodriguez" class="author-avatar">
+                                <div class="author-info">
+                                    <h4>Michael R.</h4>
+                                    <p>Business Administration</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Testimonial 5 -->
+                        <div class="testimonial-slide">
+                            <div class="testimonial-stars">
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                                <i class="fas fa-star testimonial-star"></i>
+                            </div>
+                            <div class="testimonial-quote">
+                                As an international student, StudyAI helped me overcome language barriers in my studies. The AI explanations are clear and easy to understand. Highly recommended!
+                            </div>
+                            <div class="testimonial-author">
+                                <img src="https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?w=150&h=150&fit=crop&crop=face" alt="Priya Patel" class="author-avatar">
+                                <div class="author-info">
+                                    <h4>Priya P.</h4>
+                                    <p>Engineering Student</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation -->
+                    <button class="testimonial-nav testimonial-prev" onclick="changeTestimonial(-1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="testimonial-nav testimonial-next" onclick="changeTestimonial(1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Pagination dots -->
+                <div class="testimonial-pagination" id="testimonialPagination">
+                    <div class="pagination-dot active" onclick="goToTestimonial(0)"></div>
+                    <div class="pagination-dot" onclick="goToTestimonial(1)"></div>
+                    <div class="pagination-dot" onclick="goToTestimonial(2)"></div>
+                    <div class="pagination-dot" onclick="goToTestimonial(3)"></div>
+                    <div class="pagination-dot" onclick="goToTestimonial(4)"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq-section">
+            <div class="faq-container">
+                <div class="faq-header">
+                    <h2>Frequently Asked Questions</h2>
+                    <p>Get answers to the most common questions about StudyAI and our AI-powered learning tools</p>
+                </div>
+
+                <div class="faq-list">
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFAQ(this)">
+                            <span class="faq-question-text">How does StudyAI's AI work?</span>
+                            <div class="faq-icon">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                StudyAI uses advanced machine learning algorithms to analyze your study materials and generate personalized learning content. Our AI:
+                                <ul>
+                                    <li><strong>Processes text and documents</strong> to identify key concepts and relationships</li>
+                                    <li><strong>Generates interactive content</strong> like flashcards, mind maps, and quizzes</li>
+                                    <li><strong>Adapts to your learning style</strong> by analyzing your performance and preferences</li>
+                                    <li><strong>Continuously improves</strong> based on feedback and usage patterns</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFAQ(this)">
+                            <span class="faq-question-text">Is StudyAI free to use?</span>
+                            <div class="faq-icon">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                StudyAI offers both free and premium plans to suit different needs:
+                                <ul>
+                                    <li><strong>Free Plan:</strong> Basic features with limited usage per month</li>
+                                    <li><strong>Premium Plan:</strong> Unlimited access to all AI tools for just <strong>$15/month</strong></li>
+                                    <li><strong>Student Discount:</strong> Special pricing available for verified students</li>
+                                    <li><strong>Free Trial:</strong> Try premium features for 7 days at no cost</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFAQ(this)">
+                            <span class="faq-question-text">What's your refund policy?</span>
+                            <div class="faq-icon">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                We offer a <strong>30-day money-back guarantee</strong> for all premium subscriptions:
+                                <ul>
+                                    <li><strong>Full refund</strong> if you're not satisfied within 30 days</li>
+                                    <li><strong>No questions asked</strong> - simply contact our support team</li>
+                                    <li><strong>Instant processing</strong> - refunds are processed within 3-5 business days</li>
+                                    <li><strong>Keep your data</strong> - exported study materials remain yours</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFAQ(this)">
+                            <span class="faq-question-text">Which browsers support StudyAI?</span>
+                            <div class="faq-icon">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                StudyAI works seamlessly across all modern browsers:
+                                <ul>
+                                    <li><strong>Chrome</strong> (recommended) - Version 90 and above</li>
+                                    <li><strong>Firefox</strong> - Version 88 and above</li>
+                                    <li><strong>Safari</strong> - Version 14 and above</li>
+                                    <li><strong>Edge</strong> - Version 90 and above</li>
+                                    <li><strong>Mobile browsers</strong> - Fully responsive on iOS and Android</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFAQ(this)">
+                            <span class="faq-question-text">How accurate are the AI-generated answers?</span>
+                            <div class="faq-icon">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                Our AI maintains high accuracy through advanced technology and continuous improvement:
+                                <ul>
+                                    <li><strong>95%+ accuracy rate</strong> for factual content generation</li>
+                                    <li><strong>Human oversight</strong> - All algorithms are regularly reviewed</li>
+                                    <li><strong>Source verification</strong> - AI cross-references multiple reliable sources</li>
+                                    <li><strong>User feedback integration</strong> - Accuracy improves based on user corrections</li>
+                                    <li><strong>Subject expertise</strong> - Specialized models for different academic fields</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFAQ(this)">
+                            <span class="faq-question-text">What languages does StudyAI support?</span>
+                            <div class="faq-icon">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                StudyAI supports multiple languages to serve students worldwide:
+                                <ul>
+                                    <li><strong>English</strong> - Full feature support (primary language)</li>
+                                    <li><strong>Spanish, French, German</strong> - Complete AI tool compatibility</li>
+                                    <li><strong>Chinese, Japanese, Korean</strong> - Advanced text processing</li>
+                                    <li><strong>Arabic, Hindi, Portuguese</strong> - Growing support with regular updates</li>
+                                    <li><strong>More languages</strong> - Continuously expanding based on user demand</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFAQ(this)">
+                            <span class="faq-question-text">Can I use StudyAI during exams?</span>
+                            <div class="faq-icon">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                StudyAI is designed as a <strong>study preparation tool</strong>, not for use during actual exams:
+                                <ul>
+                                    <li><strong>Pre-exam preparation</strong> - Perfect for creating study materials and practice tests</li>
+                                    <li><strong>Academic integrity</strong> - We encourage ethical use in accordance with your institution's policies</li>
+                                    <li><strong>Offline study materials</strong> - Export and print materials for exam reference (where permitted)</li>
+                                    <li><strong>Check policies</strong> - Always verify with your institution's academic guidelines</li>
+                                    <li><strong>Learning enhancement</strong> - Best used to improve understanding before exams</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Simple Feedback Section -->
+        <section class="simple-feedback-section">
+            <div class="simple-feedback-container">
+                <div class="simple-feedback-header">
+                    <h2>Share Your Feedback</h2>
+                    <p>Help us improve StudyAI with your valuable insights and suggestions</p>
+                </div>
+
+                <div class="simple-feedback-form-wrapper">
+                    <form class="simple-feedback-form" id="simpleFeedbackForm">
+                        <!-- Star Rating Section -->
+                        <div class="simple-feedback-rating">
+                            <h4>Rate your experience with StudyAI</h4>
+                            <div class="simple-rating-stars" data-rating="0">
+                                <i class="fas fa-star simple-rating-star" data-value="1"></i>
+                                <i class="fas fa-star simple-rating-star" data-value="2"></i>
+                                <i class="fas fa-star simple-rating-star" data-value="3"></i>
+                                <i class="fas fa-star simple-rating-star" data-value="4"></i>
+                                <i class="fas fa-star simple-rating-star" data-value="5"></i>
+                            </div>
+                            <div class="simple-rating-text" id="simpleRatingText"></div>
+                        </div>
+
+                        <div class="simple-feedback-grid">
+                            <div class="simple-feedback-field">
+                                <label for="simpleName">Name</label>
+                                <input type="text" id="simpleName" placeholder="Your name" required>
+                            </div>
+
+                            <div class="simple-feedback-field">
+                                <label for="simpleEmail">Email</label>
+                                <input type="email" id="simpleEmail" placeholder="your@email.com" required>
+                            </div>
+                        </div>
+
+                        <div class="simple-feedback-field">
+                            <label for="simpleFeedbackType">Feedback Type</label>
+                            <select id="simpleFeedbackType" required>
+                                <option value="">Select feedback type</option>
+                                <option value="suggestion">Suggestion</option>
+                                <option value="bug">Bug Report</option>
+                                <option value="feature">Feature Request</option>
+                                <option value="general">General Feedback</option>
+                                <option value="praise">Praise</option>
+                            </select>
+                        </div>
+
+                        <div class="simple-feedback-field">
+                            <label for="simpleMessage">Your Message</label>
+                            <textarea id="simpleMessage" rows="5" placeholder="Tell us what you think about StudyAI, what features you'd like to see, or any issues you've encountered..." required></textarea>
+                        </div>
+
+                        <div class="simple-feedback-actions">
+                            <button type="submit" class="simple-feedback-submit">
+                                <i class="fas fa-paper-plane"></i>
+                                Send Feedback
+                            </button>
+                            <button type="button" class="simple-feedback-reset" onclick="resetSimpleFeedback()">
+                                <i class="fas fa-undo"></i>
+                                Reset
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="simple-feedback-success" id="simpleFeedbackSuccess" style="display: none;">
+                        <div class="success-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3>Thank You!</h3>
+                        <p>Your <span id="successStars"></span> feedback has been received! We appreciate you taking the time to help us improve StudyAI.</p>
+                        <button class="simple-feedback-new" onclick="showSimpleFeedbackForm()">
+                            Send Another Feedback
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section - Initially Hidden -->
+        <div class="results-section" id="results-section">
+            <!-- Content will be dynamically injected here -->
+        </div>
+
+        <!-- YouTube Modal -->
+        <div id="youtubeModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeYouTubeModal()">×</span>
+                <h2 class="text-center">
+                    <i class="fab fa-youtube" style="color: #ff0000;"></i> YouTube Video Summarizer
+                </h2>
+                <p class="text-center mb-2" style="color: #64748b;">
+                    Paste a YouTube video URL to generate an AI-powered summary
+                </p>
+
+                <input type="url" id="modalYoutubeUrl" class="video-input" placeholder="https://www.youtube.com/watch?v=..."
+                    onpaste="setTimeout(previewVideo, 100)">
+
+                <div id="modalVideoPreview" class="video-preview">
+                    <img id="modalVideoThumbnail" class="video-thumbnail" alt="Video thumbnail">
+                    <div class="video-info">
+                        <h4 id="modalVideoTitle">Video Title</h4>
+                        <p id="modalVideoDetails">Duration • Channel</p>
+                    </div>
+                </div>
+
+                <div class="text-center mt-2">
+                    <button class="btn btn-primary" onclick="summarizeVideo()" id="modalSummarizeBtn">
+                        <i class="fab fa-youtube"></i> Summarize Video
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback Widget -->
+        <div class="feedback-widget" id="feedbackWidget">
+            <div class="feedback-tab" onclick="toggleFeedback()">
+                <i class="fas fa-comment-dots"></i>
+                Feedback
+            </div>
+
+            <button class="feedback-close" onclick="closeFeedback()">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="feedback-content">
+                <div class="feedback-form-container">
+                    <div class="feedback-header">
+                        <h3>
+                            <i class="fas fa-heart" style="color: #ef4444;"></i>
+                            We Value Your Feedback
+                        </h3>
+                        <p>Help us improve StudyAI with your valuable insights</p>
+                    </div>
+
+                    <form class="feedback-form" id="feedbackForm">
+                        <div class="feedback-rating">
+                            <h4>How would you rate your experience?</h4>
+                            <div class="rating-stars" data-rating="0">
+                                <i class="fas fa-star rating-star" data-value="1"></i>
+                                <i class="fas fa-star rating-star" data-value="2"></i>
+                                <i class="fas fa-star rating-star" data-value="3"></i>
+                                <i class="fas fa-star rating-star" data-value="4"></i>
+                                <i class="fas fa-star rating-star" data-value="5"></i>
+                            </div>
+                            <div class="rating-text" id="ratingText"></div>
+                        </div>
+
+                        <div class="feedback-category">
+                            <h4>What's this feedback about?</h4>
+                            <div class="category-options">
+                                <div class="category-option" data-category="ui-ux">
+                                    <i class="fas fa-palette"></i> UI/UX
+                                </div>
+                                <div class="category-option" data-category="features">
+                                    <i class="fas fa-cog"></i> Features
+                                </div>
+                                <div class="category-option" data-category="performance">
+                                    <i class="fas fa-tachometer-alt"></i> Performance
+                                </div>
+                                <div class="category-option" data-category="bug">
+                                    <i class="fas fa-bug"></i> Bug Report
+                                </div>
+                                <div class="category-option" data-category="suggestion">
+                                    <i class="fas fa-lightbulb"></i> Suggestion
+                                </div>
+                                <div class="category-option" data-category="other">
+                                    <i class="fas fa-ellipsis-h"></i> Other
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="feedback-message">
+                            <h4>Tell us more about your experience</h4>
+                            <textarea 
+                                class="feedback-textarea" 
+                                id="feedbackMessage" 
+                                placeholder="Share your thoughts, suggestions, or report any issues you encountered..."
+                                required
+                            ></textarea>
+                        </div>
+
+                        <div class="feedback-contact">
+                            <h4>Email (optional)</h4>
+                            <input 
+                                type="email" 
+                                class="feedback-email" 
+                                id="feedbackEmail" 
+                                placeholder="your@email.com"
+                            >
+                        </div>
+
+                        <div class="feedback-actions">
+                            <button type="submit" class="feedback-submit" id="submitBtn">
+                                <i class="fas fa-paper-plane"></i>
+                                Send Feedback
+                            </button>
+                            <button type="button" class="feedback-cancel" onclick="closeFeedback()">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div
+
+                <div class="feedback-success" id="feedbackSuccess">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Thank You!</h3>
+                    <p>Your feedback has been submitted successfully. We appreciate your input and will use it to improve StudyAI.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add the Documents Modal HTML Structure -->
+<div id="documentsModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-folder"></i> My Documents</h2>
+            <span class="close" onclick="closeDocumentsModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div id="documentsContainer"></div>
+        </div>
+    </div>
+</div>
+<input type="file" id="fileInput" style="display: none;" accept=".pdf,.docx,.doc,.txt,.md" onchange="handleFileUpload(this)">
+<!-- <script>
+        async function viewMyDocuments() {
+            closeDropdown();
+            await loadUserDocuments();
+            document.getElementById('documentsModal').style.display = 'block';
+        }
+
+        function closeDocumentsModal() {
+            document.getElementById('documentsModal').style.display = 'none';
+        }
+
+        async function loadUserDocuments() {
+            try {
+                const response = await fetch('/api/user/documents');
+                const data = await response.json();
+                
+                const container = document.getElementById('documentsContainer');
+                
+                if (data.documents.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center" style="padding: 2rem;">
+                            <i class="fas fa-folder-open" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                            <h3 style="color: #666; margin-bottom: 1rem;">No documents uploaded yet</h3>
+                            <p style="color: #999;">Upload a document to start generating study materials!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '<div class="documents-grid">';
+                
+                for (const doc of data.documents) {
+                    html += `
+                        <div class="document-card">
+                            <div class="doc-icon">
+                                <i class="fas fa-file-${getFileIcon(doc.file_type)}"></i>
+                            </div>
+                            <h4 title="${doc.filename}">${doc.filename.length > 25 ? doc.filename.substring(0, 25) + '...' : doc.filename}</h4>
+                            <p style="color: #666; font-size: 0.85rem;">Uploaded: ${new Date(doc.uploaded_at).toLocaleDateString()}</p>
+                            <div class="feature-buttons">
+                    `;
+                    
+                    const features = [
+                        { key: 'flashcards', icon: 'brain', name: 'Flashcards' },
+                        { key: 'mcqs', icon: 'question-circle', name: 'Quiz' },
+                        { key: 'mindmap', icon: 'project-diagram', name: 'Mind Map' },
+                        { key: 'learning-path', icon: 'route', name: 'Learning Path' },
+                        { key: 'sticky-notes', icon: 'sticky-note', name: 'Sticky Notes' },
+                        { key: 'exam-questions', icon: 'trophy', name: 'Exam Questions' }
+                    ];
+                    
+                    for (const feature of features) {
+                        if (doc.features[feature.key]) {
+                            html += `
+                                <button class="feature-btn generated" onclick="viewFeature(${doc.features[feature.key].id}, '${feature.key}')">
+                                    <i class="fas fa-${feature.icon}"></i> View ${feature.name}
+                                </button>
+                            `;
+                        } else {
+                            html += `
+                                <button class="feature-btn" onclick="generateFeature(${doc.id}, '${feature.key}')">
+                                    <i class="fas fa-${feature.icon}"></i> Generate ${feature.name}
+                                </button>
+                            `;
+                        }
+                    }
+                    
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                html += '</div>';
+                container.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading documents:', error);
+                document.getElementById('documentsContainer').innerHTML = 
+                    '<p class="text-center" style="color: #f87171;">Error loading documents. Please try again.</p>';
+            }
+        }
+
+        function getFileIcon(fileType) {
+            const icons = {
+                'pdf': 'pdf',
+                'docx': 'word',
+                'doc': 'word',
+                'txt': 'alt',
+                'md': 'markdown'
+            };
+            return icons[fileType] || 'file';
+        }
+
+        // Missing functions referenced in the code
+        function closeDropdown() {
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            if (dropdownMenu) {
+                dropdownMenu.classList.remove('active');
+            }
+        }
+
+        async function viewFeature(featureId, featureType) {
+            try {
+                const response = await fetch(`/api/features/${featureType}/${featureId}`);
+                const data = await response.json();
+                
+                // Close documents modal
+                closeDocumentsModal();
+                
+                // Display the feature content
+                displayResults(featureType, data);
+                
+            } catch (error) {
+                console.error(`Error loading ${featureType}:`, error);
+                alert(`Failed to load ${featureType}. Please try again.`);
+            }
+        }
+
+        async function generateFeature(documentId, featureType) {
+            try {
+                // Show loading indicator
+                const btn = event.currentTarget;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Generating...`;
+                btn.disabled = true;
+                
+                // Make API request to generate the feature
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        documentId,
+                        featureType
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update button to show "View" instead of "Generate"
+                    btn.innerHTML = `<i class="fas fa-${getFeatureIcon(featureType)}"></i> View ${getFeatureName(featureType)}`;
+                    btn.classList.add('generated');
+                    btn.onclick = function() { viewFeature(data.featureId, featureType); };
+                    btn.disabled = false;
+                    
+                    // Optionally view the generated feature immediately
+                    viewFeature(data.featureId, featureType);
+                } else {
+                    throw new Error(data.message || 'Generation failed');
+                }
+                
+            } catch (error) {
+                console.error(`Error generating ${featureType}:`, error);
+                alert(`Failed to generate ${featureType}. Please try again.`);
+                
+                // Reset button
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function getFeatureIcon(featureType) {
+            const icons = {
+                'flashcards': 'brain',
+                'mcqs': 'question-circle',
+                'mindmap': 'project-diagram',
+                'learning-path': 'route',
+                'sticky-notes': 'sticky-note',
+                'exam-questions': 'trophy'
+            };
+            return icons[featureType] || 'file';
+        }
+
+        function getFeatureName(featureType) {
+            const names = {
+                'flashcards': 'Flashcards',
+                'mcqs': 'Quiz',
+                'mindmap': 'Mind Map',
+                'learning-path': 'Learning Path',
+                'sticky-notes': 'Sticky Notes',
+                'exam-questions': 'Exam Questions'
+            };
+            return names[featureType] || featureType;
+        }
+
+        function handleFileUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            // Optionally, you can add additional data to formData
+            // formData.append('key', 'value');
+            
+            // Example: Upload to a specific endpoint
+            fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('File uploaded successfully:', data);
+                // Handle success (e.g., show a success message, update UI)
+            })
+            .catch(error => {
+                console.error('Error uploading file:', error);
+                // Handle error (e.g., show an error message)
+            })
+            .finally(() => {
+                // Reset the file input
+                input.value = '';
+            });
+        }
+</script> -->
+
+        <script src="static/js/script.js"></script>
+    </div>
+</body>
+
+</html>

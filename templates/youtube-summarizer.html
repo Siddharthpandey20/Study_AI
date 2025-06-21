@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Summarizer - StudyAI</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/feature-pages.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="feature-header">
+        <nav class="feature-nav">
+            <a href="index.html" class="nav-home">
+                <i class="fas fa-home"></i>
+                Home
+            </a>
+            
+            <div class="feature-tabs">
+                <a href="flashcards.html" class="feature-tab">
+                    <i class="fas fa-brain"></i> Flashcards
+                </a>
+                <a href="mindmap.html" class="feature-tab">
+                    <i class="fas fa-project-diagram"></i> Mind Map
+                </a>
+                <a href="learning-path.html" class="feature-tab">
+                    <i class="fas fa-route"></i> Learning Path
+                </a>
+                <a href="sticky-notes.html" class="feature-tab">
+                    <i class="fas fa-sticky-note"></i> Sticky Notes
+                </a>
+                <a href="exam-booster.html" class="feature-tab">
+                    <i class="fas fa-trophy"></i> Exam Booster
+                </a>
+                <a href="youtube-summarizer.html" class="feature-tab active">
+                    <i class="fab fa-youtube"></i> YouTube
+                </a>
+                <a href="doc-qna.html" class="feature-tab">
+                    <i class="fas fa-comments"></i> Doc Q&A
+                </a>
+            </div>
+            
+            <div class="nav-controls">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="feature-main" style="padding-top: 120px;">
+        <div class="feature-container" style="max-width: 900px; margin: 0 auto;">
+            <!-- YouTube Summarizer Header -->
+            <section class="feature-title-section" style="text-align: center; margin-bottom: 3rem;">
+                <h1 style="color: white; font-size: 3rem; margin-bottom: 1rem;">
+                    <i class="fab fa-youtube" style="color: #ff0000;"></i>
+                    YouTube Summarizer
+                </h1>
+                <p style="color: rgba(255,255,255,0.8); font-size: 1.2rem;">Transform any YouTube video into comprehensive summaries and study materials</p>
+            </section>
+
+            <!-- Simple URL Input -->
+            <section style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 3rem; margin-bottom: 2rem; text-align: center;">
+                <div style="margin-bottom: 2rem;">
+                    <i class="fab fa-youtube" style="font-size: 4rem; color: #ff0000; margin-bottom: 1rem; display: block;"></i>
+                    <h2 style="color: white; margin-bottom: 0.5rem;">Paste YouTube URL Here</h2>
+                    <p style="color: rgba(255,255,255,0.7);">Enter any YouTube video URL to get started</p>
+                </div>
+                
+                <div style="max-width: 600px; margin: 0 auto;">
+                    <input type="url" 
+                           id="youtubeUrl" 
+                           placeholder="https://www.youtube.com/watch?v=..." 
+                           style="width: 100%; padding: 1.5rem; font-size: 1.1rem; border: 2px solid rgba(255,255,255,0.3); border-radius: 12px; background: rgba(255,255,255,0.1); color: white; text-align: center;"
+                           autocomplete="off">
+                    
+                    <button onclick="generateYouTubeSummary()" 
+                            style="margin-top: 1.5rem; padding: 1rem 2rem; background: #ff0000; color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;"
+                            onmouseover="this.style.background='#cc0000'" 
+                            onmouseout="this.style.background='#ff0000'">
+                        <i class="fas fa-magic"></i> Generate Summary
+                    </button>
+                </div>
+            </section>
+            <!-- Results Area -->
+            <div id="resultsArea" style="display: none;"></div>
+        </div>
+    </main>
+
+    <script>
+    // Standalone YouTube Summarizer JavaScript
+    let isSummarizing = false;
+    let isDarkMode = localStorage.getItem('darkMode') === 'true';
+    
+    // Initialize theme
+    if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+        const themeIcon = document.querySelector('.theme-toggle i');
+        if (themeIcon) {
+            themeIcon.classList.replace('fa-moon', 'fa-sun');
+        }
+    }
+    
+    // Theme toggle function
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        isDarkMode = document.body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDarkMode);
+        const icon = document.querySelector('.theme-toggle i');
+        if (icon) {
+            icon.classList.toggle('fa-moon');
+            icon.classList.toggle('fa-sun');
+        }
+    }
+    
+    // Initialize when document loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add input event listener to extract video ID when URL is pasted
+        const urlInput = document.getElementById('youtubeUrl');
+        if (urlInput) {
+            urlInput.addEventListener('input', handleUrlInput);
+        }
+    });
+    
+    // Handle URL input to show video preview
+    function handleUrlInput(e) {
+        const url = e.target.value;
+        const videoId = extractVideoId(url);
+        
+        if (videoId) {
+            fetchVideoInfo(videoId);
+        } else {
+            if (!url.trim()) {
+                document.getElementById('videoPreview').style.display = 'none';
+            }
+        }
+    }
+    
+    // Extract YouTube video ID from various URL formats
+    function extractVideoId(url) {
+        if (!url) return null;
+        
+        const patterns = [
+            /(?:v=|\/)([0-9A-Za-z_-]{11})(?:[\&\?]|$)/,
+            /youtu\.be\/([0-9A-Za-z_-]{11})(?:[\&\?]|$)/,
+            /youtube\.com\/shorts\/([0-9A-Za-z_-]{11})(?:[\&\?]|$)/
+        ];
+        
+        for (const pattern of patterns) {
+            const match = url.match(pattern);
+            if (match) {
+                return match[1];
+            }
+        }
+        
+        return null;
+    }
+    
+    // Fetch video information for preview
+    async function fetchVideoInfo(videoId) {
+        try {
+            const videoPreview = document.getElementById('videoPreview');
+            videoPreview.innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <div class="loading-spinner"></div>
+                    <p style="color: var(--text-secondary);">Loading video information...</p>
+                </div>
+            `;
+            videoPreview.style.display = 'block';
+            
+            // For demo purposes, create a mock preview using YouTube thumbnail
+            const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+            
+            videoPreview.innerHTML = `
+                <div class="video-preview-content">
+                    <div class="video-thumbnail">
+                        <img src="${thumbnailUrl}" alt="Video thumbnail" onerror="this.src='https://img.youtube.com/vi/${videoId}/hqdefault.jpg'">
+                        <div class="video-duration">Loading...</div>
+                    </div>
+                    <div class="video-info">
+                        <h4 class="video-title">Loading video title...</h4>
+                        <div class="video-channel">
+                            <i class="fas fa-user"></i> Loading channel...
+                        </div>
+                        <div class="video-views">
+                            <i class="fas fa-eye"></i> Loading views...
+                        </div>
+                    </div>
+                </div>
+            `;
+        } catch (error) {
+            console.error('Error fetching video info:', error);
+            document.getElementById('videoPreview').innerHTML = `
+                <div style="text-align: center; padding: 1rem; color: #ef4444;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Unable to load video information. The video might be private or the URL is invalid.</p>
+                </div>
+            `;
+        }
+    }
+    
+    // Format large numbers with commas
+    function formatNumber(num) {
+        return num ? num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '0';
+    }
+    
+    // Generate YouTube summary
+    async function generateYouTubeSummary() {
+        const url = document.getElementById('youtubeUrl').value.trim();
+        
+        if (!url) {
+            showError('Please enter a YouTube URL');
+            return;
+        }
+        
+        const videoId = extractVideoId(url);
+        if (!videoId) {
+            showError('Invalid YouTube URL. Please enter a valid YouTube video link');
+            return;
+        }
+        
+        if (isSummarizing) {
+            showError('Already summarizing a video, please wait...');
+            return;
+        }
+        
+        isSummarizing = true;
+        
+        // Update button state
+        const generateBtn = document.querySelector('.generate-btn');
+        const originalBtnText = generateBtn.innerHTML;
+        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Summarizing...';
+        generateBtn.disabled = true;
+        
+        // Show loading in results area
+        const resultsArea = document.getElementById('resultsArea');
+        resultsArea.style.display = 'block';
+        resultsArea.innerHTML = `
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <h3 style="color: var(--text-primary);">Analyzing Video...</h3>
+                <p style="color: var(--text-secondary);">This may take a few moments depending on video length</p>
+            </div>
+        `;
+        
+        try {
+            // For demo purposes, simulate API call
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            // Mock result data
+            const result = {
+                video_id: videoId,
+                title: "Sample Video Title",
+                thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+                source: "transcript",
+                duration: "10:25",
+                summary: "This is a comprehensive summary of the video content. The video covers multiple important topics including key concepts, practical applications, and detailed explanations that are relevant to the subject matter."
+            };
+            
+            displayVideoSummary(result);
+        } catch (error) {
+            console.error('Error:', error);
+            showError('Network error occurred. Please try again.');
+            resultsArea.style.display = 'none';
+        } finally {
+            isSummarizing = false;
+            generateBtn.innerHTML = originalBtnText;
+            generateBtn.disabled = false;
+        }
+    }
+    
+    // Display the video summary results
+    function displayVideoSummary(result) {
+        const resultsArea = document.getElementById('resultsArea');
+        window.currentVideoSummary = result.summary;
+        
+        // Format summary with paragraphs
+        const formattedSummary = result.summary
+            .split('\n\n')
+            .map(paragraph => `<p>${paragraph}</p>`)
+            .join('');
+        
+        resultsArea.innerHTML = `
+            <div class="summary-container">
+                <div class="summary-header">
+                    <div class="summary-video-preview">
+                        <div class="summary-thumbnail">
+                            <img src="${result.thumbnail}" alt="Video thumbnail" onerror="this.src='https://img.youtube.com/vi/${result.video_id}/hqdefault.jpg'">
+                            <div class="summary-play-btn" onclick="openVideoInNewTab('${result.video_id}')">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                        <div class="summary-video-details">
+                            <h2 class="summary-title">${result.title}</h2>
+                            <div class="summary-meta">
+                                <div class="source-badge ${result.source}">
+                                    <i class="fas fa-${result.source === 'transcript' ? 'closed-captioning' : 'microphone'}"></i>
+                                    ${result.source === 'transcript' ? 'Transcript' : 'Audio Analysis'}
+                                </div>
+                                <div class="duration-badge">
+                                    <i class="fas fa-clock"></i>
+                                    ${result.duration || 'Unknown Duration'}
+                                </div>
+                            </div>
+                            <div class="summary-actions">
+                                <button class="action-btn copy-btn" onclick="copyToClipboard('${encodeURIComponent(result.summary)}')">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                                <button class="action-btn flashcards-btn" onclick="generateFlashcardsFromSummary('${encodeURIComponent(result.summary)}')">
+                                    <i class="fas fa-brain"></i> Flashcards
+                                </button>
+                                <button class="action-btn notes-btn" onclick="generateNotesFromSummary('${encodeURIComponent(result.summary)}')">
+                                    <i class="fas fa-sticky-note"></i> Notes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-content">
+                    <h3><i class="fas fa-file-alt"></i> Summary</h3>
+                    <div class="summary-text">
+                        ${formattedSummary}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Scroll to results
+        resultsArea.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Open YouTube video in new tab
+    function openVideoInNewTab(videoId) {
+        window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+    }
+    
+    // Copy summary to clipboard
+    function copyToClipboard(encodedText) {
+        const text = decodeURIComponent(encodedText);
+        navigator.clipboard.writeText(text).then(() => {
+            showSuccess('Summary copied to clipboard!');
+        }).catch(err => {
+            console.error('Could not copy text: ', err);
+            showError('Failed to copy to clipboard');
+        });
+    }
+    
+    // Generate flashcards from summary
+    function generateFlashcardsFromSummary(encodedText) {
+        const text = decodeURIComponent(encodedText);
+        sessionStorage.setItem('summaryForFlashcards', text);
+        window.location.href = 'flashcards.html?source=youtube';
+    }
+    
+    // Generate notes from summary
+    function generateNotesFromSummary(encodedText) {
+        const text = decodeURIComponent(encodedText);
+        sessionStorage.setItem('summaryForNotes', text);
+        window.location.href = 'sticky-notes.html?source=youtube';
+    }
+    
+    // Show error toast
+    function showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.innerHTML = `
+            <i class="fas fa-exclamation-triangle"></i>
+            ${message}
+        `;
+        document.body.appendChild(errorDiv);
+        
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 5000);
+    }
+    
+    // Show success toast
+    function showSuccess(message) {
+        const successDiv = document.createElement('div');
+        successDiv.className = 'success-message';
+        successDiv.innerHTML = `
+            <i class="fas fa-check-circle"></i>
+            ${message}
+        `;
+        document.body.appendChild(successDiv);
+        
+        setTimeout(() => {
+            successDiv.remove();
+        }, 3000);
+    }
+    </script>
+
+    <style>
+        /* Global Reset and Variables */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #5b21b6; /* Softer purple for modern aesthetic */
+            --primary-dark: #4c1d95;
+            --secondary: #f472b6; /* Vibrant pink for contrast */
+            --accent: #34d399; /* Emerald green for highlights */
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --success: #10b981;
+            --dark: #0f172a; /* Slate for text and dark elements */
+            --light: #f8fafc;
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --glass: rgba(255, 255, 255, 0.15);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #6d28d9 0%, #ec4899 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            overflow-x: hidden;
+            transition: background-color 0.5s ease;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
+            color: #e2e8f0;
+        }
+
+        /* Header Styles */
+        .header {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .nav {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-link:hover {
+            color: var(--accent);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            color: var(--accent);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 8rem 2rem 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            margin-bottom: 5rem;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .hero h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 4rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #a5f3fc 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.85);
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.6;
+        }
+
+        .hero .btn-primary {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            background: var(--gradient);
+            color: white;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .hero .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Upload Section */
+        .upload-section {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 4rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: var(--transition);
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 3.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.05);
+            transform: scale(1.01);
+        }
+
+        .upload-icon {
+            font-size: 3.5rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .upload-text {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .upload-info {
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 0.95rem;
+        }
+
+        .text-input {
+            width: 100%;
+            height: 140px;
+            padding: 1.2rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            transition: var(--transition);
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Feature Cards */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .feature-card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-md);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 2.8rem;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .feature-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-description {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        /* Specific Feature Colors */
+        .flashcard-card .feature-icon { color: #f87171; }
+        .mindmap-card .feature-icon { color: #2dd4bf; }
+        .learning-card .feature-icon { color: #facc15; }
+        .sticky-card .feature-icon { color: #fb7185; }
+        .exam-card .feature-icon { color: #34d399; }
+        .youtube-card .feature-icon { color: #ff0000; }
+        .doc-qna-card .feature-icon { color: #a78bfa; }
+
+        /* Results Section */
+        .results-section {
+            display: none;
+            margin-top: 4rem;
+        }
+
+        /* Quiz Interface */
+        .quiz-container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2.5rem;
+            max-width: 960px;
+            margin: 0 auto 2.5rem;
+            transition: var(--transition);
+        }
+
+        .question-card {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .question-number {
+            background: var(--gradient);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .option-btn {
+            padding: 1.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            background: white;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+            font-size: 1rem;
+            text-align: left;
+            position: relative;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .option-btn.correct {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+            transform: scale(1.03);
+            animation: correctPulse 0.5s ease;
+        }
+
+        .option-btn.incorrect {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+            animation: incorrectShake 0.5s ease;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1.03); }
+            50% { transform: scale(1.08); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        .explanation {
+            background: #f1f5f9;
+            padding: 2rem;
+            border-radius: 16px;
+            margin-top: 2rem;
+            display: none;
+            border-left: 4px solid var(--primary);
+            animation: slideIn 0.5s ease;
+        }
+
+        /* Flashcard Interface */
+        .flashcards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            perspective: 1200px;
+        }
+
+        .flashcard {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            transition: var(--transition);
+            min-height: 280px;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .flashcard:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            min-height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            border-radius: 16px;
+        }
+
+        .flashcard-back {
+            background: var(--gradient);
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        /* Mind Map Styles */
+        .mindmap-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-md);
+            min-height: 650px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mindmap-svg {
+            width: 100%;
+            height: 650px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .mindmap-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 650px;
+        }
+
+        .mindmap-node {
+            position: absolute;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            min-width: 140px;
+            text-align: center;
+        }
+
+        .mindmap-node:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-md);
+        }
+
+        .mindmap-node.central {
+            font-size: 1.4rem;
+            padding: 1.5rem 2rem;
+            border-width: 3px;
+            transform: scale(1.1);
+        }
+
+        .mindmap-node.level-2 {
+            font-size: 0.95rem;
+            padding: 0.8rem 1.2rem;
+        }
+
+        /* Learning Path Interface (Styling from provided code) */
+        .learning-path {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .learning-step {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .learning-step:hover {
+            transform: translateX(10px);
+        }
+
+        .step-number {
+            position: absolute;
+            left: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Sticky Notes Interface (Styling from provided code) */
+        .sticky-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .sticky-note {
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            transform: rotate(-2deg);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .sticky-note:nth-child(even) {
+            transform: rotate(2deg);
+        }
+
+        .sticky-note:hover {
+            transform: rotate(0deg) scale(1.05);
+            z-index: 10;
+        }
+
+        .sticky-note.red {
+            background: linear-gradient(135deg, #ff6b6b, #ff5252);
+            color: white;
+        }
+
+        .sticky-note.yellow {
+            background: linear-gradient(135deg, #ffd54f, #ffcc02);
+            color: #333;
+        }
+
+        .sticky-note.green {
+            background: linear-gradient(135deg, #66bb6a, #4caf50);
+            color: white;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(-2deg); }
+            50% { transform: translateY(-10px) rotate(-2deg); }
+        }
+
+        /* Exam Questions */
+        .exam-questions {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .exam-question {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+        }
+
+        .exam-question:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .question-type-badge {
+            position: absolute;
+            top: -12px;
+            right: 24px;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .short-answer { background: var(--primary); }
+        .long-answer { background: var(--warning); }
+        .hots { background: var(--danger); }
+
+        .probability-score {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(99, 102, 241, 0.05);
+            border-radius: 12px;
+        }
+
+        .probability-bar {
+            flex: 1;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .probability-fill {
+            height: 100%;
+            background: var(--gradient);
+            transition: width 1s ease;
+            border-radius: 4px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .animate-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        /* Loading States */
+        .loading {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .hero h1 { font-size: 3rem; }
+            .features-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+            .container { padding: 6rem 1.5rem 2rem; }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .hero p { font-size: 1.1rem; }
+            .features-grid { grid-template-columns: 1fr; }
+            .options-grid { grid-template-columns: 1fr; }
+            .nav-links { gap: 1.5rem; }
+            .container { padding: 6rem 1rem 2rem; }
+        }
+
+        /* Utility Classes */
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .text-center { text-align: center; }
+        .mt-2 { margin-top: 1rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .hidden { display: none; }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background: white;
+            max-height: 60vh;
+            overflow-y: auto;
+            margin: 5% auto;
+            padding: 2.5rem;
+            padding-right: 10px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 640px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            animation: modalFadeIn 0.4s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .close {
+            color: #64748b;
+            float: right;
+            font-size: 1.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close:hover {
+            color: var(--dark);
+        }
+
+        .video-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            margin: 1rem 0;
+            transition: var(--transition);
+        }
+
+        .video-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(91, 33, 182, 0.1);
+        }
+
+        .video-preview {
+            display: none;
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 1px solid #e5e7eb;
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            max-width: 320px;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .video-info h4 {
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .video-info p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* Video Summary Styles */
+        .video-summary-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2.5rem;
+        }
+
+        .video-header {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            align-items: flex-start;
+        }
+
+        .video-thumbnail-large {
+            width: 240px;
+            height: 135px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .video-details h3 {
+            color: var(--dark);
+            margin-bottom: 0.75rem;
+            font-size: 1.4rem;
+        }
+
+        .video-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .video-badge {
+            background: var(--gradient);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .summary-content {
+            background: rgba(91, 33, 182, 0.05);
+            border-radius: 16px;
+            padding: 2rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .summary-content h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Dark Mode Adjustments */
+        body.dark-mode .quiz-container,
+        body.dark-mode .flashcard,
+        body.dark-mode .mindmap-container,
+        body.dark-mode .exam-question,
+        body.dark-mode .video-summary-container,
+        body.dark-mode .modal-content {
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .question-text,
+        body.dark-mode .video-details h3,
+        body.dark-mode .flashcard-front div {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .option-btn,
+        body.dark-mode .flashcard-front {
+            background: #334155;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .explanation,
+        body.dark-mode .video-preview {
+            background: #334155;
+            border-color: #475569;
+        }
+
+        /* User Profile Styles */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .user-profile:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            z-index: 1000;
+            min-width: 200px;
+            margin-top: 0.5rem;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--dark);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .dropdown-item:hover {
+            background: var(--light);
+        }
+
+        .login-btn {
+            background: white;
+            color: var(--primary);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .login-btn:hover {
+            background: var(--light);
+            transform: translateY(-2px);
+        }
+
+        /* Documents Modal Styles */
+        .documents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .document-card {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .document-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .doc-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .feature-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .feature-btn {
+            padding: 0.5rem;
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            background: transparent;
+            color: var(--primary);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.8rem;
+        }
+
+        .feature-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .feature-btn.generated {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }        .feature-btn.generated:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Feature Selection Modal Styles */
+        .feature-selection-btn {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .feature-selection-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .feature-selection-btn i {
+            font-size: 2.5rem;
+        }
+
+        .feature-selection-btn h4 {
+            color: var(--dark);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .feature-selection-btn p {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin: 0;
+            line-height: 1.4;
+        }
+    </style>
+</body>
+</html>

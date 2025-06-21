@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Dashboard - StudyAI</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #5b21b6;
+            --secondary: #f472b6;
+            --accent: #34d399;
+            --success: #10b981;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            --glass: rgba(255, 255, 255, 0.15);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #6d28d9 0%, #ec4899 100%);
+            min-height: 100vh;
+            color: #0f172a;
+        }
+
+        .header {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            color: var(--accent);
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 8rem 2rem 2rem;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+        }
+
+        .sidebar {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 2rem;
+            height: fit-content;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .main-content {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .group-info {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .group-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .group-key-display {
+            background: var(--accent);
+            color: var(--dark);
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .upload-section {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .upload-section:hover {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .documents-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .document-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .document-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: var(--transition);
+        }
+
+        .document-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .document-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .document-name {
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .document-meta {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .feature-btn {
+            padding: 0.6rem;
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--primary);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+        }
+
+        .feature-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .feature-btn.generated {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .members-list {
+            margin-top: 2rem;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+        }
+
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            color: white;
+            font-weight: 600;
+        }
+
+        .member-role {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Update feature modal styles to match home page */
+        .feature-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+        }
+
+        .feature-modal-content {
+            background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 20px;
+            width: 95%;
+            max-width: 1400px;
+            max-height: 90%;
+            overflow: hidden;
+            animation: modalSlideIn 0.4s ease;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .feature-modal-header {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            color: white;
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .feature-modal-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feature-modal-close {
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .feature-modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .feature-modal-body {
+            background: white;
+            padding: 2rem;
+            max-height: 75vh;
+            overflow-y: auto;
+        }
+
+        /* Home page style flashcard container */
+        .flashcard-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            padding: 1rem 0;
+        }
+
+        .flashcard {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 250px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .flashcard:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .flashcard.flipped {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .flashcard-content {
+            text-align: center;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .flashcard-question, .flashcard-answer {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .flashcard-difficulty {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(8px);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Home page style MCQ container */
+        .mcq-container {
+            display: grid;
+            gap: 2rem;
+            padding: 1rem 0;
+        }
+
+        .mcq-item {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .mcq-item:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .mcq-question {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .mcq-options {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .mcq-option {
+            padding: 1rem 1.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            background: #f9fafb;
+        }
+
+        .mcq-option:hover {
+            border-color: #6366f1;
+            background: #f0f9ff;
+            transform: translateX(5px);
+        }
+
+        .mcq-option.correct {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            border-color: #10b981;
+            color: white;
+            font-weight: 600;
+        }
+
+        .mcq-explanation {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            border-left: 4px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Home page style mind map */
+        .mindmap-container {
+            width: 100%;
+            height: 600px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mindmap-placeholder {
+            z-index: 2;
+        }
+
+        .mindmap-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="20" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/><circle cx="30" cy="30" r="10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/><circle cx="70" cy="30" r="10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/><circle cx="30" cy="70" r="10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/><circle cx="70" cy="70" r="10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/><line x1="50" y1="30" x2="50" y2="50" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/><line x1="30" y1="50" x2="50" y2="50" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/><line x1="70" y1="50" x2="50" y2="50" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/><line x1="50" y1="70" x2="50" y2="50" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></svg>') center/cover;
+            opacity: 0.3;
+        }
+
+        /* Home page style learning path */
+        .learning-path-container {
+            display: grid;
+            gap: 2rem;
+            padding: 1rem 0;
+        }
+
+        .learning-step {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            border-left: 5px solid #6366f1;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .learning-step:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .step-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-description {
+            color: #6b7280;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .step-meta {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        /* Home page style sticky notes */
+        .sticky-notes-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 1rem 0;
+        }
+
+        .sticky-note {
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform: rotate(-1deg);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .sticky-note:nth-child(even) {
+            transform: rotate(1deg);
+        }
+
+        .sticky-note:hover {
+            transform: rotate(0deg) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        .sticky-note.red {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-left: 5px solid #ef4444;
+        }
+
+        .sticky-note.yellow {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-left: 5px solid #f59e0b;
+        }
+
+        .sticky-note.green {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-left: 5px solid #10b981;
+        }
+
+        /* Home page style exam questions */
+        .exam-questions-container {
+            display: grid;
+            gap: 2rem;
+            padding: 1rem 0;
+        }
+
+        .exam-question {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .exam-question:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+
+        .question-type {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .probability-score {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .question-keywords {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .keyword-tag {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            color: #6366f1;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        /* Add empty state styling */
+        .empty-feature-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #6b7280;
+        }
+
+        .empty-feature-icon {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            opacity: 0.5;
+        }
+
+        .empty-feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #374151;
+        }
+
+        .empty-feature-text {
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .sticky-note:nth-child(even) {
+            animation-delay: 0.1s;
+        }
+        
+        .learning-step:hover {
+            transform: translateY(-2px) translateX(5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+        }
+        
+        .exam-question:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="/" class="logo">
+                <i class="fas fa-brain"></i> StudyAI
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/groups" class="nav-link">Study Groups</a>
+                <a href="/doc-chat" class="nav-link">Q&A</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="group-info" id="groupInfo">
+                <!-- Group info will be loaded here -->
+            </div>
+
+            <!-- Upload Section -->
+            <div class="upload-section" onclick="document.getElementById('fileInput').click()">
+                <div style="font-size: 2rem; color: var(--accent); margin-bottom: 1rem;">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div style="color: white; font-weight: 600; margin-bottom: 0.5rem;">
+                    Upload Document
+                </div>
+                <div style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">
+                    Share with group members
+                </div>
+            </div>
+            <input type="file" id="fileInput" style="display: none;" accept=".pdf,.docx,.txt,.md">
+
+            <!-- Members List -->
+            <div class="members-list">
+                <h3 class="section-title">
+                    <i class="fas fa-users"></i> Members
+                </h3>
+                <div id="membersList">
+                    <!-- Members will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="documents-section">
+                <h2 class="section-title">
+                    <i class="fas fa-folder-open"></i> Group Documents
+                </h2>
+                <div id="documentsList">
+                    <!-- Documents will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Display Modal -->
+    <div id="featureModal" class="feature-modal">
+        <div class="feature-modal-content">
+            <div class="feature-modal-header">
+                <h2 class="feature-modal-title" id="featureModalTitle">Feature Content</h2>
+                <button class="feature-modal-close" onclick="closeFeatureModal()">×</button>
+            </div>
+            <div class="feature-modal-body" id="featureModalBody">
+                <!-- Feature content will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get group ID from URL
+        const groupId = window.location.pathname.split('/').pop();
+        let currentUser = null;
+        let groupData = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+        });
+
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/user/profile');
+                const data = await response.json();
+                
+                if (data.user) {
+                    currentUser = data.user;
+                    loadGroupData();
+                } else {
+                    window.location.href = '/auth/login';
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = '/';
+            }
+        }
+
+        async function loadGroupData() {
+            try {
+                // Load group members
+                const membersResponse = await fetch(`/api/groups/${groupId}/members`, {
+                    credentials: 'include'
+                });
+                const membersData = await membersResponse.json();
+                
+                // Load group documents
+                const documentsResponse = await fetch(`/api/groups/${groupId}/documents`, {
+                    credentials: 'include'
+                });
+                const documentsData = await documentsResponse.json();
+                
+                displayGroupInfo(membersData.members);
+                displayMembers(membersData.members);
+                displayDocuments(documentsData.documents);
+                
+            } catch (error) {
+                console.error('Error loading group data:', error);
+                alert('Error loading group data');
+            }
+        }
+
+        function displayGroupInfo(members) {
+            const admin = members.find(m => m.role === 'admin');
+            const groupInfo = document.getElementById('groupInfo');
+            
+            // Get the actual group key from the server
+            getGroupKey().then(groupKey => {
+                groupInfo.innerHTML = `
+                    <div class="group-name">Study Group #${groupId}</div>
+                    <div class="group-key-display" onclick="copyGroupKey('${groupKey}')">
+                        <i class="fas fa-key"></i> ${groupKey}
+                    </div>
+                    <div style="color: rgba(255, 255, 255, 0.8);">
+                        Admin: ${admin ? admin.name : 'Unknown'}
+                    </div>
+                `;
+            }).catch(error => {
+                console.error('Error getting group key:', error);
+                groupInfo.innerHTML = `
+                    <div class="group-name">Study Group #${groupId}</div>
+                    <div class="group-key-display" onclick="alert('Group key not available')">
+                        <i class="fas fa-key"></i> Click to Copy Key
+                    </div>
+                    <div style="color: rgba(255, 255, 255, 0.8);">
+                        Admin: ${admin ? admin.name : 'Unknown'}
+                    </div>
+                `;
+            });
+        }
+
+        async function getGroupKey() {
+            try {
+                const response = await fetch(`/api/groups/${groupId}/info`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                return data.group_key;
+            } catch (error) {
+                console.error('Error fetching group key:', error);
+                throw error;
+            }
+        }
+
+        function copyGroupKey(key) {
+            if (key && key !== 'undefined') {
+                navigator.clipboard.writeText(key).then(() => {
+                    // Create a temporary success message
+                    const keyDisplay = document.querySelector('.group-key-display');
+                    const originalText = keyDisplay.innerHTML;
+                    keyDisplay.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => {
+                        keyDisplay.innerHTML = originalText;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy key:', err);
+                    alert('Failed to copy key');
+                });
+            } else {
+                alert('Group key not available');
+            }
+        }
+
+        function displayMembers(members) {
+            const membersList = document.getElementById('membersList');
+            
+            let html = '';
+            members.forEach(member => {
+                html += `
+                    <div class="member-item">
+                        <img src="${member.picture || '/static/default-avatar.png'}" 
+                             alt="${member.name}" class="member-avatar">
+                        <div class="member-info">
+                            <div class="member-name">${member.name}</div>
+                            <div class="member-role">${member.role}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            membersList.innerHTML = html;
+        }
+
+        function displayDocuments(documents) {
+            const documentsList = document.getElementById('documentsList');
+            
+            if (documents.length === 0) {
+                documentsList.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
+                        <i class="fas fa-file-alt" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <div>No documents uploaded yet</div>
+                        <div style="font-size: 0.9rem; margin-top: 0.5rem;">
+                            Upload the first document to get started
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="document-list">';
+            
+            documents.forEach(doc => {
+                html += `
+                    <div class="document-item">
+                        <div class="document-header">
+                            <div>
+                                <div class="document-name">${doc.filename}</div>
+                                <div class="document-meta">
+                                    Uploaded by ${doc.uploaded_by} • ${new Date(doc.uploaded_at).toLocaleDateString()}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="feature-grid">
+                `;
+                
+                const features = [
+                    { key: 'flashcards', icon: 'brain', name: 'Flashcards' },
+                    { key: 'mcqs', icon: 'question-circle', name: 'Quiz' },
+                    { key: 'mindmap', icon: 'project-diagram', name: 'Mind Map' },
+                    { key: 'learning-path', icon: 'route', name: 'Path' },
+                    { key: 'sticky-notes', icon: 'sticky-note', name: 'Notes' },
+                    { key: 'exam-questions', icon: 'trophy', name: 'Exam' }
+                ];
+                
+                features.forEach(feature => {
+                    if (doc.features[feature.key]) {
+                        html += `
+                            <button class="feature-btn generated" onclick="viewGroupFeature(${doc.features[feature.key].id}, '${feature.key}')">
+                                <i class="fas fa-${feature.icon}"></i> ${feature.name}
+                            </button>
+                        `;
+                    } else {
+                        html += `
+                            <button class="feature-btn" onclick="generateGroupFeature(${doc.id}, '${feature.key}')">
+                                <i class="fas fa-${feature.icon}"></i> ${feature.name}
+                            </button>
+                        `;
+                    }
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            documentsList.innerHTML = html;
+        }
+
+        // File upload handling
+        document.getElementById('fileInput').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch(`/api/groups/${groupId}/upload`, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Document uploaded successfully!');
+                    loadGroupData(); // Refresh the page
+                } else {
+                    alert('Error uploading document');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Error uploading document');
+            }
+        });
+
+        async function generateGroupFeature(documentId, featureType) {
+            try {
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+                btn.disabled = true;
+
+                const formData = new FormData();
+                formData.append('document_id', documentId);
+
+                const response = await fetch(`/api/groups/${groupId}/generate/${featureType}`, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`${featureType.replace('-', ' ')} generated successfully!`);
+                    loadGroupData(); // Refresh
+                } else {
+                    throw new Error('Generation failed');
+                }
+
+            } catch (error) {
+                console.error('Error generating feature:', error);
+                alert('Error generating feature');
+            }
+        }
+
+        async function viewGroupFeature(featureId, featureType) {
+            try {
+                console.log(`🔍 Fetching feature ${featureId} of type ${featureType}`);
+                
+                const response = await fetch(`/api/groups/${groupId}/features/${featureId}`, {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Feature fetch error:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('✅ Feature data received:', data);
+                
+                if (!data.content) {
+                    throw new Error('No content in feature data');
+                }
+                
+                displayFeatureContent(data.content, featureType);
+                
+            } catch (error) {
+                console.error('Error viewing feature:', error);
+                alert(`Error loading ${featureType} content: ${error.message}`);
+            }
+        }
+
+        function displayFeatureContent(content, featureType) {
+            console.log(`🎨 Displaying ${featureType} content:`, content);
+            
+            const modal = document.getElementById('featureModal');
+            const title = document.getElementById('featureModalTitle');
+            const body = document.getElementById('featureModalBody');
+            
+            // Set title with icons
+            const featureNames = {
+                'flashcards': '<i class="fas fa-brain"></i> Flashcards',
+                'mcqs': '<i class="fas fa-question-circle"></i> Multiple Choice Questions',
+                'mindmap': '<i class="fas fa-project-diagram"></i> Mind Map',
+                'learning-path': '<i class="fas fa-route"></i> Learning Path',
+                'sticky-notes': '<i class="fas fa-sticky-note"></i> Sticky Notes',
+                'exam-questions': '<i class="fas fa-trophy"></i> Exam Questions'
+            };
+            
+            title.innerHTML = featureNames[featureType] || '<i class="fas fa-file"></i> Feature Content';
+            
+            // Validate content structure
+            if (!Array.isArray(content) && typeof content !== 'object') {
+                body.innerHTML = `
+                    <div class="empty-feature-state">
+                        <div class="empty-feature-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="empty-feature-title">Invalid Content Format</div>
+                        <div class="empty-feature-text">
+                            Expected array or object for ${featureType}, got ${typeof content}
+                        </div>
+                    </div>
+                `;
+                modal.style.display = 'block';
+                return;
+            }
+            
+            // Display content based on type
+            try {
+                switch (featureType) {
+                    case 'flashcards':
+                        if (!Array.isArray(content) || content.length === 0) {
+                            throw new Error('No flashcards found');
+                        }
+                        displayFlashcards(content, body);
+                        break;
+                    case 'mcqs':
+                        if (!Array.isArray(content) || content.length === 0) {
+                            throw new Error('No MCQs found');
+                        }
+                        displayMCQs(content, body);
+                        break;
+                    case 'mindmap':
+                        displayMindMap(content, body);
+                        break;
+                    case 'learning-path':
+                        if (!Array.isArray(content) || content.length === 0) {
+                            throw new Error('No learning steps found');
+                        }
+                        displayLearningPath(content, body);
+                        break;
+                    case 'sticky-notes':
+                        if (!Array.isArray(content) || content.length === 0) {
+                            throw new Error('No sticky notes found');
+                        }
+                        displayStickyNotes(content, body);
+                        break;
+                    case 'exam-questions':
+                        if (!Array.isArray(content) || content.length === 0) {
+                            throw new Error('No exam questions found');
+                        }
+                        displayExamQuestions(content, body);
+                        break;
+                    default:
+                        throw new Error(`Unsupported feature type: ${featureType}`);
+                }
+                
+                modal.style.display = 'block';
+                
+            } catch (error) {
+                console.error(`Error displaying ${featureType}:`, error);
+                body.innerHTML = `
+                    <div class="empty-feature-state">
+                        <div class="empty-feature-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="empty-feature-title">Error Displaying ${featureType}</div>
+                        <div class="empty-feature-text">
+                            ${error.message}
+                        </div>
+                        <button onclick="console.log('Content:', ${JSON.stringify(content)})" 
+                                style="padding: 0.75rem 1.5rem; border: 1px solid #d1d5db; border-radius: 10px; background: white; color: #374151; font-weight: 500; cursor: pointer;">
+                            <i class="fas fa-bug"></i> Debug Content
+                        </button>
+                    </div>
+                `;
+                modal.style.display = 'block';
+            }
+        }
+
+        function displayFlashcards(flashcards, container) {
+            console.log('📚 Displaying flashcards:', flashcards);
+            
+            if (!Array.isArray(flashcards) || flashcards.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-feature-state">
+                        <div class="empty-feature-icon"><i class="fas fa-brain"></i></div>
+                        <div class="empty-feature-title">No Flashcards Available</div>
+                        <div class="empty-feature-text">No flashcards were generated for this document.</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '<div class="flashcard-container">';
+            
+            flashcards.forEach((card, index) => {
+                if (!card.question || !card.answer) {
+                    console.warn(`Invalid flashcard at index ${index}:`, card);
+                    return;
+                }
+                
+                html += `
+                    <div class="flashcard" onclick="flipCard(${index})" id="flashcard-${index}">
+                        <div class="flashcard-difficulty">${card.difficulty || 'Medium'}</div>
+                        <div class="flashcard-content">
+                            <div class="flashcard-question" id="question-${index}">
+                                ${card.question}
+                            </div>
+                            <div class="flashcard-answer" id="answer-${index}" style="display: none;">
+                                ${card.answer}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function flipCard(index) {
+            const card = document.getElementById(`flashcard-${index}`);
+            const question = document.getElementById(`question-${index}`);
+            const answer = document.getElementById(`answer-${index}`);
+            
+            if (card.classList.contains('flipped')) {
+                card.classList.remove('flipped');
+                question.style.display = 'block';
+                answer.style.display = 'none';
+            } else {
+                card.classList.add('flipped');
+                question.style.display = 'none';
+                answer.style.display = 'block';
+            }
+        }
+
+        function displayMCQs(mcqs, container) {
+            console.log('❓ Displaying MCQs:', mcqs);
+            
+            if (!Array.isArray(mcqs) || mcqs.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-feature-state">
+                        <div class="empty-feature-icon"><i class="fas fa-question-circle"></i></div>
+                        <div class="empty-feature-title">No MCQs Available</div>
+                        <div class="empty-feature-text">No multiple choice questions were generated for this document.</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '<div class="mcq-container">';
+            
+            mcqs.forEach((mcq, index) => {
+                if (!mcq.question || !Array.isArray(mcq.options) || typeof mcq.correct_answer !== 'number') {
+                    console.warn(`Invalid MCQ at index ${index}:`, mcq);
+                    return;
+                }
+                
+                html += `
+                    <div class="mcq-item">
+                        <div class="mcq-question">${mcq.question}</div>
+                        <div class="mcq-options">
+                `;
+                
+                mcq.options.forEach((option, optIndex) => {
+                    const isCorrect = optIndex === mcq.correct_answer;
+                    html += `
+                        <div class="mcq-option ${isCorrect ? 'correct' : ''}" 
+                             onclick="showMCQExplanation(${index})">
+                            ${String.fromCharCode(65 + optIndex)}. ${option}
+                            ${isCorrect ? ' <i class="fas fa-check"></i>' : ''}
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                        <div class="mcq-explanation" id="explanation-${index}" style="display: none;">
+                            <strong><i class="fas fa-lightbulb"></i> Explanation:</strong> ${mcq.explanation || 'No explanation provided'}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function displayMindMap(mindmapData, container) {
+            console.log('🗺️ Displaying mind map:', mindmapData);
+            
+            // Handle different possible data structures
+            let title = "Mind Map";
+            let nodes = [];
+            
+            if (typeof mindmapData === 'object' && mindmapData !== null) {
+                if (mindmapData.title) {
+                    title = mindmapData.title;
+                }
+                if (mindmapData.nodes && Array.isArray(mindmapData.nodes)) {
+                    nodes = mindmapData.nodes;
+                } else if (Array.isArray(mindmapData)) {
+                    // If mindmapData is directly an array of nodes
+                    nodes = mindmapData;
+                } else if (mindmapData.central_topic || mindmapData.main_topic) {
+                    // Handle single topic structure
+                    const centralTopic = mindmapData.central_topic || mindmapData.main_topic;
+                    nodes = [{ id: '1', label: centralTopic, level: 0 }];
+                    
+                    if (mindmapData.subtopics && Array.isArray(mindmapData.subtopics)) {
+                        mindmapData.subtopics.forEach((subtopic, index) => {
+                            nodes.push({
+                                id: `${index + 2}`,
+                                label: typeof subtopic === 'string' ? subtopic : subtopic.name || subtopic.label,
+                                level: 1,
+                                parent: '1'
+                            });
+                        });
+                    }
+                }
+            }
+            
+            container.innerHTML = `
+                <div style="background: white; border-radius: 20px; padding: 2.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); min-height: 650px; position: relative; overflow: hidden;">
+                    <h3 style="text-align: center; color: #1f2937; margin-bottom: 2rem; font-size: 1.5rem; font-weight: 700;">
+                        <i class="fas fa-project-diagram" style="color: #facc15; margin-right: 0.5rem;"></i> ${title}
+                    </h3>
+                    <div style="position: relative; width: 100%; height: 650px;">
+                        <svg style="width: 100%; height: 650px; position: absolute; top: 0; left: 0; z-index: 1;" viewBox="0 0 800 650" id="mindmapSvg"></svg>
+                        <div style="position: relative; z-index: 2; width: 100%; height: 650px;" id="mindmapContent">
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 1.5rem 2rem; border-radius: 12px; color: white; font-weight: 700; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 3px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); min-width: 140px; text-align: center; font-size: 1.4rem; border-width: 3px; background: var(--primary);" onmouseover="this.style.transform='translate(-50%, -50%) scale(1.05)'; this.style.boxShadow='0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';" onmouseout="this.style.transform='translate(-50%, -50%) scale(1.1)'; this.style.boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.1)';">
+                                ${title}
+                            </div>
+            `;
+            
+            if (nodes.length > 0) {
+                const centerX = 400;
+                const centerY = 325;
+                const radius = 220;
+                
+                nodes.forEach((node, index) => {
+                    const angle = (index * 2 * Math.PI) / nodes.length;
+                    const x = centerX + radius * Math.cos(angle);
+                    const y = centerY + radius * Math.sin(angle);
+                    const xPercent = (x / 800) * 100;
+                    const yPercent = (y / 650) * 100;
+
+                    container.querySelector('#mindmapContent').innerHTML += `
+                        <div style="position: absolute; top: ${yPercent}%; left: ${xPercent}%; transform: translate(-50%, -50%); padding: 1rem 1.5rem; border-radius: 12px; color: white; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); min-width: 140px; text-align: center; background: ${node.color || 'var(--secondary)'};" data-id="${node.id}" onmouseover="this.style.transform='translate(-50%, -50%) scale(1.05)'; this.style.boxShadow='0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';" onmouseout="this.style.transform='translate(-50%, -50%)'; this.style.boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.1)';">
+                            ${node.label || node.name || node}
+                        </div>
+                    `;
+
+                    if (node.children && node.children.length > 0) {
+                        node.children.forEach((child, childIndex) => {
+                            const childAngle = angle + ((childIndex - (node.children.length - 1) / 2) * 0.8);
+                            const childRadius = radius + 140;
+                            const childX = centerX + childRadius * Math.cos(childAngle);
+                            const childY = centerY + childRadius * Math.sin(childAngle);
+                            const childXPercent = (childX / 800) * 100;
+                            const childYPercent = (childY / 650) * 100;
+
+                            container.querySelector('#mindmapContent').innerHTML += `
+                                <div style="position: absolute; top: ${childYPercent}%; left: ${childXPercent}%; transform: translate(-50%, -50%); padding: 0.8rem 1.2rem; border-radius: 12px; color: white; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); min-width: 140px; text-align: center; font-size: 0.95rem; background: ${child.color || '#2dd4bf'};" data-id="${child.id}" onmouseover="this.style.transform='translate(-50%, -50%) scale(1.05)'; this.style.boxShadow='0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';" onmouseout="this.style.transform='translate(-50%, -50%)'; this.style.boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.1)';">
+                                    ${child.label || child.name || child}
+                                </div>
+                            `;
+                        });
+                    }
+                });
+            } else {
+                container.querySelector('#mindmapContent').innerHTML += `
+                    <div style="position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); font-size: 1rem; opacity: 0.8; max-width: 400px; margin: 0 auto; color: #6b7280; text-align: center;">
+                        Mind map visualization shows the relationships between concepts and ideas from your document
+                    </div>
+                `;
+            }
+            
+            container.innerHTML += `
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            setTimeout(() => drawGroupMindMapConnections(nodes, title), 100);
+        }
+
+        // Add the connection drawing function
+        function drawGroupMindMapConnections(nodes, title) {
+            const svg = document.getElementById('mindmapSvg');
+            if (!svg) return;
+
+            const centerX = 400;
+            const centerY = 325;
+            const radius = 220;
+            let connections = '';
+
+            if (nodes && nodes.length > 0) {
+                nodes.forEach((node, index) => {
+                    const angle = (index * 2 * Math.PI) / nodes.length;
+                    const x = centerX + radius * Math.cos(angle);
+                    const y = centerY + radius * Math.sin(angle);
+
+                    connections += `
+                        <line x1="${centerX}" y1="${centerY}" x2="${x}" y2="${y}" 
+                              stroke="var(--primary)" stroke-width="3" opacity="0.7" 
+                              stroke-dasharray="5,5">
+                            <animate attributeName="stroke-dashoffset" 
+                                     values="0;-10" dur="1s" repeatCount="indefinite"/>
+                        </line>
+                    `;
+
+                    if (node.children) {
+                        node.children.forEach((child, childIndex) => {
+                            const childAngle = angle + ((childIndex - (node.children.length - 1) / 2) * 0.8);
+                            const childRadius = radius + 140;
+                            const childX = centerX + childRadius * Math.cos(childAngle);
+                            const childY = centerY + childRadius * Math.sin(childAngle);
+
+                            connections += `
+                                <line x1="${x}" y1="${y}" x2="${childX}" y2="${childY}" 
+                                      stroke="${node.color || 'var(--secondary)'}" stroke-width="2" opacity="0.6"/>
+                            `;
+                        });
+                    }
+                });
+            }
+
+            svg.innerHTML = connections;
+        }
+
+        function closeFeatureModal() {
+            document.getElementById('featureModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('featureModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function displayLearningPath(steps, container) {
+            console.log('🛤️ Displaying learning path:', steps);
+            
+            if (!Array.isArray(steps) || steps.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-feature-state">
+                        <div class="empty-feature-icon"><i class="fas fa-route"></i></div>
+                        <div class="empty-feature-title">No Learning Path Available</div>
+                        <div class="empty-feature-text">No learning path was generated for this document.</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div style="background: white; border-radius: 20px; padding: 2.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);">
+                    <h3 style="text-align: center; color: #1f2937; margin-bottom: 2rem; font-size: 1.5rem; font-weight: 700;">
+                        <i class="fas fa-route" style="color: #facc15; margin-right: 0.5rem;"></i> Your Learning Path
+                    </h3>
+                    <div class="learning-path-container">
+                        ${steps.map((step, index) => `
+                            <div class="learning-step" style="animation: fadeIn 0.6s ease forwards; animation-delay: ${index * 0.1}s; opacity: 0;">
+                                <div class="step-number">${step.step_number || index + 1}</div>
+                                <div class="step-title">${step.title}</div>
+                                <div class="step-description">${step.description}</div>
+                                <div class="step-meta">
+                                    <div><i class="fas fa-clock"></i> ${step.estimated_time || 'Not specified'}</div>
+                                    <div><i class="fas fa-list"></i> ${step.prerequisites?.length || 0} prerequisites</div>
+                                    ${step.difficulty ? `<div><i class="fas fa-signal"></i> ${step.difficulty}</div>` : ''}
+                                </div>
+                                ${step.prerequisites && step.prerequisites.length > 0 ? `
+                                    <div style="margin-top: 1rem;">
+                                        <strong style="color: #6366f1;">Prerequisites:</strong>
+                                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                                            ${step.prerequisites.map(prereq => `
+                                                <span style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%); color: #6366f1; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; font-weight: 500; border: 1px solid rgba(99, 102, 241, 0.2);">
+                                                    ${prereq}
+                                                </span>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayStickyNotes(notes, container) {
+            console.log('📝 Displaying sticky notes:', notes);
+            
+            if (!Array.isArray(notes) || notes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-feature-state">
+                        <div class="empty-feature-icon"><i class="fas fa-sticky-note"></i></div>
+                        <div class="empty-feature-title">No Sticky Notes Available</div>
+                        <div class="empty-feature-text">No sticky notes were generated for this document.</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div style="background: white; border-radius: 20px; padding: 2.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);">
+                    <h3 style="text-align: center; color: #1f2937; margin-bottom: 2rem; font-size: 1.5rem; font-weight: 700;">
+                        <i class="fas fa-sticky-note" style="color: #fb7185; margin-right: 0.5rem;"></i> Smart Sticky Notes
+                    </h3>
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <span style="background: #ff6b6b; color: white; padding: 0.5rem 1rem; border-radius: 20px; margin: 0 0.5rem; font-size: 0.9rem; font-weight: 600;">
+                            🔴 Must Memorize
+                        </span>
+                        <span style="background: #ffd54f; color: #333; padding: 0.5rem 1rem; border-radius: 20px; margin: 0 0.5rem; font-size: 0.9rem; font-weight: 600;">
+                            🟡 Good to Know
+                        </span>
+                        <span style="background: #66bb6a; color: white; padding: 0.5rem 1rem; border-radius: 20px; margin: 0 0.5rem; font-size: 0.9rem; font-weight: 600;">
+                            🟢 Bonus/Extra
+                        </span>
+                    </div>
+                    <div class="sticky-notes-container">
+                        ${notes.map((note, index) => {
+                            const categoryClass = note.category?.toLowerCase() || 'yellow';
+                            const priority = note.priority || Math.floor(Math.random() * 10) + 1;
+                            return `
+                                <div class="sticky-note ${categoryClass}" style="animation: float 3s ease-in-out infinite; animation-delay: ${index * 0.2}s; opacity: 0; animation: fadeIn 0.6s ease forwards; animation-delay: ${index * 0.1}s;" onclick="expandGroupSticky(this)">
+                                    <div style="font-weight: 700; margin-bottom: 1rem; font-size: 1.1rem;">
+                                        <i class="fas fa-flag"></i> Priority: ${priority}/10
+                                    </div>
+                                    <div style="margin-bottom: 1.5rem; line-height: 1.6; font-weight: 500;">
+                                        ${note.content}
+                                    </div>
+                                    ${note.tags && note.tags.length > 0 ? `
+                                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                            ${note.tags.map(tag => `
+                                                <span style="background: rgba(255,255,255,0.3); color: inherit; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.7rem; font-weight: 600; border: 1px solid rgba(255,255,255,0.4);">
+                                                    #${tag}
+                                                </span>
+                                            `).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayExamQuestions(questions, container) {
+            console.log('🏆 Displaying exam questions:', questions);
+            
+            if (!Array.isArray(questions) || questions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-feature-state">
+                        <div class="empty-feature-icon"><i class="fas fa-trophy"></i></div>
+                        <div class="empty-feature-title">No Exam Questions Available</div>
+                        <div class="empty-feature-text">No exam questions were generated for this document.</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div style="background: white; border-radius: 20px; padding: 2.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);">
+                    <h3 style="text-align: center; color: #1f2937; margin-bottom: 2rem; font-size: 1.5rem; font-weight: 700;">
+                        <i class="fas fa-trophy" style="color: #34d399; margin-right: 0.5rem;"></i> Exam Booster
+                    </h3>
+                    <div class="exam-questions-container">
+                        ${questions.map((question, index) => {
+                            const probability = Math.round((question.probability_score || Math.random()) * 100);
+                            const questionType = question.type || 'general';
+                            const typeColors = {
+                                'short_answer': '#6366f1',
+                                'long_answer': '#f59e0b', 
+                                'hots': '#ef4444',
+                                'mcq': '#10b981',
+                                'general': '#6366f1'
+                            };
+                            const typeColor = typeColors[questionType] || typeColors.general;
+                            
+                            return `
+                                <div class="exam-question" style="position: relative; animation: fadeIn 0.6s ease forwards; animation-delay: ${index * 0.1}s; opacity: 0;">
+                                    <div class="question-header">
+                                        <div class="question-type" style="background: ${typeColor};">
+                                            <i class="fas fa-tag"></i> ${questionType.replace('_', ' ').toUpperCase()}
+                                        </div>
+                                        <div class="probability-score" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">
+                                            <i class="fas fa-percentage"></i> ${probability}% likely
+                                        </div>
+                                    </div>
+                                    <div class="question-text">${question.question}</div>
+                                    ${question.keywords && question.keywords.length > 0 ? `
+                                        <div class="question-keywords">
+                                            ${question.keywords.map(keyword => `
+                                                <span class="keyword-tag">${keyword}</span>
+                                            `).join('')}
+                                        </div>
+                                    ` : ''}
+                                    ${question.explanation ? `
+                                        <div style="margin-top: 1.5rem; padding: 1.5rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%); border-radius: 12px; border-left: 4px solid #6366f1;">
+                                            <strong style="color: #6366f1; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                                <i class="fas fa-lightbulb"></i> Why this might appear:
+                                            </strong>
+                                            <p style="color: #4b5563; line-height: 1.6; margin: 0;">${question.explanation}</p>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Add the missing utility function for sticky notes
+        function expandGroupSticky(sticky) {
+            if (sticky.style.transform.includes('scale(1.1)')) {
+                sticky.style.transform = sticky.style.transform.replace(' scale(1.1)', '');
+                sticky.style.zIndex = '1';
+                sticky.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+            } else {
+                sticky.style.transform += ' scale(1.1)';
+                sticky.style.zIndex = '20';
+                sticky.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.25)';
+            }
+        }
+
+        // Add missing MCQ explanation function
+        function showMCQExplanation(index) {
+            const explanation = document.getElementById(`explanation-${index}`);
+            if (explanation) {
+                explanation.style.display = explanation.style.display === 'none' ? 'block' : 'none';
+                if (explanation.style.display === 'block') {
+                    explanation.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+        }
+    </script>
+</body>
+</html>

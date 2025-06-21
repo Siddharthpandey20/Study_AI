@@ -1,0 +1,349 @@
+<div class="user-profile" id="userProfile" style="display: none;">
+                    <img id="userAvatar" class="user-avatar" src="" alt="User Avatar">
+                    <span id="userName"></span>
+                    <div class="dropdown-menu" id="dropdownMenu">
+                        <a href="#" class="dropdown-item" onclick="viewAccount()">
+                            <i class="fas fa-user"></i> My Account
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="viewMyDocuments()">
+                            <i class="fas fa-folder"></i> My Documents
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+
+<!-- Add the Documents Modal HTML Structure -->
+<div id="documentsModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-folder"></i> My Documents</h2>
+            <span class="close" onclick="closeDocumentsModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div id="documentsContainer"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 0;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        width: 80%;
+        max-width: 1000px;
+        animation: modalFadeIn 0.3s;
+    }
+
+    .modal-header {
+        padding: 15px 20px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        border-radius: 15px 15px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-body {
+        padding: 20px;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .close {
+        color: white;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    /* Documents Grid Styles */
+    .documents-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    .document-card {
+        border-radius: 12px;
+        padding: 20px;
+        background: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .document-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .doc-icon {
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin-bottom: 15px;
+    }
+
+    .feature-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 15px;
+    }
+
+    .feature-btn {
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: none;
+        background: #f3f4f6;
+        color: #4b5563;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: left;
+    }
+
+    .feature-btn:hover {
+        background: #e5e7eb;
+    }
+
+    .feature-btn.generated {
+        background: var(--primary-light);
+        color: var(--primary);
+    }
+
+    .feature-btn.generated:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    @keyframes modalFadeIn {
+        from {opacity: 0; transform: translateY(-30px);}
+        to {opacity: 1; transform: translateY(0);}
+    }
+
+    body.dark-mode .modal-content {
+        background-color: #1e293b;
+        color: #e2e8f0;
+    }
+
+    body.dark-mode .document-card {
+        background: #334155;
+        color: #e2e8f0;
+    }
+
+    body.dark-mode .feature-btn {
+        background: #475569;
+        color: #e2e8f0;
+    }
+
+    body.dark-mode .feature-btn:hover {
+        background: #64748b;
+    }
+</style>
+
+<script>
+        async function viewMyDocuments() {
+            closeDropdown();
+            await loadUserDocuments();
+            document.getElementById('documentsModal').style.display = 'block';
+        }
+
+        function closeDocumentsModal() {
+            document.getElementById('documentsModal').style.display = 'none';
+        }
+
+        async function loadUserDocuments() {
+            try {
+                const response = await fetch('/api/user/documents');
+                const data = await response.json();
+                
+                const container = document.getElementById('documentsContainer');
+                
+                if (data.documents.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center" style="padding: 2rem;">
+                            <i class="fas fa-folder-open" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                            <h3 style="color: #666; margin-bottom: 1rem;">No documents uploaded yet</h3>
+                            <p style="color: #999;">Upload a document to start generating study materials!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '<div class="documents-grid">';
+                
+                for (const doc of data.documents) {
+                    html += `
+                        <div class="document-card">
+                            <div class="doc-icon">
+                                <i class="fas fa-file-${getFileIcon(doc.file_type)}"></i>
+                            </div>
+                            <h4 title="${doc.filename}">${doc.filename.length > 25 ? doc.filename.substring(0, 25) + '...' : doc.filename}</h4>
+                            <p style="color: #666; font-size: 0.85rem;">Uploaded: ${new Date(doc.uploaded_at).toLocaleDateString()}</p>
+                            <div class="feature-buttons">
+                    `;
+                    
+                    const features = [
+                        { key: 'flashcards', icon: 'brain', name: 'Flashcards' },
+                        { key: 'mcqs', icon: 'question-circle', name: 'Quiz' },
+                        { key: 'mindmap', icon: 'project-diagram', name: 'Mind Map' },
+                        { key: 'learning-path', icon: 'route', name: 'Learning Path' },
+                        { key: 'sticky-notes', icon: 'sticky-note', name: 'Sticky Notes' },
+                        { key: 'exam-questions', icon: 'trophy', name: 'Exam Questions' }
+                    ];
+                    
+                    for (const feature of features) {
+                        if (doc.features[feature.key]) {
+                            html += `
+                                <button class="feature-btn generated" onclick="viewFeature(${doc.features[feature.key].id}, '${feature.key}')">
+                                    <i class="fas fa-${feature.icon}"></i> View ${feature.name}
+                                </button>
+                            `;
+                        } else {
+                            html += `
+                                <button class="feature-btn" onclick="generateFeature(${doc.id}, '${feature.key}')">
+                                    <i class="fas fa-${feature.icon}"></i> Generate ${feature.name}
+                                </button>
+                            `;
+                        }
+                    }
+                    
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                html += '</div>';
+                container.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading documents:', error);
+                document.getElementById('documentsContainer').innerHTML = 
+                    '<p class="text-center" style="color: #f87171;">Error loading documents. Please try again.</p>';
+            }
+        }
+
+        function getFileIcon(fileType) {
+            const icons = {
+                'pdf': 'pdf',
+                'docx': 'word',
+                'doc': 'word',
+                'txt': 'alt',
+                'md': 'markdown'
+            };
+            return icons[fileType] || 'file';
+        }
+
+        // Missing functions referenced in the code
+        function closeDropdown() {
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            if (dropdownMenu) {
+                dropdownMenu.classList.remove('active');
+            }
+        }
+
+        async function viewFeature(featureId, featureType) {
+            try {
+                const response = await fetch(`/api/features/${featureType}/${featureId}`);
+                const data = await response.json();
+                
+                // Close documents modal
+                closeDocumentsModal();
+                
+                // Display the feature content
+                displayResults(featureType, data);
+                
+            } catch (error) {
+                console.error(`Error loading ${featureType}:`, error);
+                alert(`Failed to load ${featureType}. Please try again.`);
+            }
+        }
+
+        async function generateFeature(documentId, featureType) {
+            try {
+                // Show loading indicator
+                const btn = event.currentTarget;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Generating...`;
+                btn.disabled = true;
+                
+                // Make API request to generate the feature
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        documentId,
+                        featureType
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update button to show "View" instead of "Generate"
+                    btn.innerHTML = `<i class="fas fa-${getFeatureIcon(featureType)}"></i> View ${getFeatureName(featureType)}`;
+                    btn.classList.add('generated');
+                    btn.onclick = function() { viewFeature(data.featureId, featureType); };
+                    btn.disabled = false;
+                    
+                    // Optionally view the generated feature immediately
+                    viewFeature(data.featureId, featureType);
+                } else {
+                    throw new Error(data.message || 'Generation failed');
+                }
+                
+            } catch (error) {
+                console.error(`Error generating ${featureType}:`, error);
+                alert(`Failed to generate ${featureType}. Please try again.`);
+                
+                // Reset button
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function getFeatureIcon(featureType) {
+            const icons = {
+                'flashcards': 'brain',
+                'mcqs': 'question-circle',
+                'mindmap': 'project-diagram',
+                'learning-path': 'route',
+                'sticky-notes': 'sticky-note',
+                'exam-questions': 'trophy'
+            };
+            return icons[featureType] || 'file';
+        }
+
+        function getFeatureName(featureType) {
+            const names = {
+                'flashcards': 'Flashcards',
+                'mcqs': 'Quiz',
+                'mindmap': 'Mind Map',
+                'learning-path': 'Learning Path',
+                'sticky-notes': 'Sticky Notes',
+                'exam-questions': 'Exam Questions'
+            };
+            return names[featureType] || featureType;
+        }
+</script>
