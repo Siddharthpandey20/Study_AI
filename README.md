@@ -16,27 +16,27 @@ The educational technology landscape faces a critical challenge: despite the abu
 
 StudyAI addresses these challenges through open innovation by:
 
-1.  *Content Transformation:* Converting static educational materials (PDFs, videos, text) into a suite of interactive learning experiences.
-2.  *Multi-modal Learning:* Supporting various learning styles through diverse content formats like flashcards, mind maps, and summaries, all generated from a single source.
-3.  *Unified Platform:* Providing a complete suite of AI-powered study tools in one application, eliminating the need for multiple, disconnected services.
-4.  *Secure & Collaborative:* Provides secure user authentication via Google and enables collaborative learning through study groups where documents and AI-generated materials can be shared and saved.
-5.  *Accessibility:* Making advanced AI learning technology available to all students regardless of their technical background, fostering a more inclusive educational environment.
+1.  **Content Transformation:** Converting static educational materials (PDFs, videos, text) into a suite of interactive learning experiences.
+2.  **Multi-modal Learning:** Supporting various learning styles through diverse content formats like flashcards, mind maps, and summaries, all generated from a single source.
+3.  **Unified Platform:** Providing a complete suite of AI-powered study tools in one application, eliminating the need for multiple, disconnected services.
+4.  **Secure & Collaborative:** Provides secure user authentication via Google and enables collaborative learning through study groups where documents and AI-generated materials can be shared and saved.
+5.  **Accessibility:** Making advanced AI learning technology available to all students regardless of their technical background, fostering a more inclusive educational environment.
 
 ## ✨ Key Features
 
--   *🔐 Secure Authentication & User Accounts*: Login securely with your Google account to save your documents, track your generated content, and manage your learning materials across sessions.
--   *👥 Collaborative Study Groups*: Create or join study groups to share documents with peers. All AI-generated content (flashcards, quizzes, etc.) is automatically saved and shared within the group, fostering a collaborative learning environment.
--   *🧠 Smart Flashcards Generator*: AI-powered flashcards with adaptive difficulty levels.
--   *🗺 Interactive Mind Map Creator*: Visualize complex topics with auto-generated mind maps.
--   *🚀 Personalized Learning Path*: Step-by-step guides tailored to your materials.
--   *📝 Smart Sticky Notes*: Color-coded notes organized by importance.
--   *🏆 Exam Booster*: Practice questions with probability scores for exam likelihood.
--   *📺 YouTube Summarizer*: Convert videos into comprehensive text summaries.
--   *💬 Document Q&A Chat*: Have interactive conversations about your uploaded documents.
+-   **🔐 Secure Authentication & User Accounts**: Login securely with your Google account to save your documents, track your generated content, and manage your learning materials across sessions.
+-   **👥 Collaborative Study Groups**: Create or join study groups to share documents with peers. All AI-generated content (flashcards, quizzes, etc.) is automatically saved and shared within the group, fostering a collaborative learning environment.
+-   **🧠 Smart Flashcards Generator**: AI-powered flashcards with adaptive difficulty levels.
+-   **🗺️ Interactive Mind Map Creator**: Visualize complex topics with auto-generated mind maps.
+-   **🚀 Personalized Learning Path**: Step-by-step guides tailored to your materials.
+-   **📝 Smart Sticky Notes**: Color-coded notes organized by importance.
+-   **🏆 Exam Booster**: Practice questions with probability scores for exam likelihood.
+-   **📺 YouTube Summarizer**: Convert videos into comprehensive text summaries.
+-   **💬 Document Q&A Chat**: Have interactive conversations about your uploaded documents.
 
 ## 🔧 Project Structure
 
-
+```
 study_ai_complete/
 ├── main.py                   # FastAPI main application, handles routing
 ├── run.py                    # Application startup script (Uvicorn)
@@ -66,7 +66,7 @@ study_ai_complete/
 │   ├── groups.html           # Study Groups listing page
 │   └── group-detail.html     # Page for a specific study group
 └── whisper-main/             # OpenAI Whisper integration for audio transcription
-
+```
 
 ## 🚀 Installation Guide
 
@@ -76,7 +76,7 @@ study_ai_complete/
 
 ### Setup Instructions
 
-bash
+```bash
 # 1. Clone the repository
 git clone https://github.com/your-username/Study_AI_Complete_Project-master.git
 cd Study_AI_Complete_Project-master
@@ -86,28 +86,32 @@ python -m venv venv
 # On Windows
 venv\Scripts\activate
 # On macOS/Linux
-# source venv/bin/activate
+source venv/bin/activate
 
 # 3. Install Whisper dependencies
 cd whisper-main
+
 pip install .
+
 cd ..
 
 # 4. Install all other required packages
+
 pip install -r requirements.txt
 
 # 5. Run the application
+
 python run.py
+```
 
-
-The application will be available at http://127.0.0.1:8000.
+The application will be available at `http://127.0.0.1:8000`.
 
 ## 💻 Usage Guide
 
-1.  *Sign In*: Securely log in using your Google account to access your personal dashboard.
-2.  *Upload or Join*: Upload your personal study documents or create/join a study group to collaborate on shared materials.
-3.  *Generate Features*: For any document, select an AI tool (e.g., Flashcards, Mind Map) to generate interactive study aids.
-4.  *Learn & Collaborate*: Your generated content is automatically saved and associated with the document. Access it anytime from your dashboard or view content generated by your group members.
+1.  **Sign In**: Securely log in using your Google account to access your personal dashboard.
+2.  **Upload or Join**: Upload your personal study documents or create/join a study group to collaborate on shared materials.
+3.  **Generate Features**: For any document, select an AI tool (e.g., Flashcards, Mind Map) to generate interactive study aids.
+4.  **Learn & Collaborate**: Your generated content is automatically saved and associated with the document. Access it anytime from your dashboard or view content generated by your group members.
 
 ## 📜 Originality & Attribution
 
@@ -119,17 +123,17 @@ This project was developed with the assistance of AI programming tools, includin
 ### External Libraries, Frameworks, and APIs
 This project is built upon the following open-source libraries and external services.
 
-*Backend & API:*
+**Backend & API:**
 *   [FastAPI](https://fastapi.tiangolo.com/): High-performance web framework for building APIs.
 *   [Uvicorn](https://www.uvicorn.org/): ASGI server for running FastAPI.
 *   [Jinja2](https://jinja.palletsprojects.com/): Templating engine for rendering HTML.
 *   [python-multipart](https://pypi.org/project/python-multipart/): For parsing multipart/form-data requests (file uploads).
 *   [aiofiles](https://pypi.org/project/aiofiles/): For asynchronous file operations.
 
-*AI & Machine Learning:*
+**AI & Machine Learning:**
 *   [Google Generative AI (Gemini)](https://ai.google/discover/generativeai/): The core generative model for content creation.
 *   [Langchain](https://www.langchain.com/): Framework for developing applications powered by language models.
-*   [OpenAI Whisper](https://openai.com/research/whisper): For audio transcription (integrated via the whisper-main submodule).
+*   [OpenAI Whisper](https://openai.com/research/whisper): For audio transcription (integrated via the `whisper-main` submodule).
 *   [FAISS (faiss-cpu)](https://faiss.ai/): Library for efficient similarity search and clustering of dense vectors.
 *   [Sentence-Transformers](https://www.sbert.net/): For creating state-of-the-art sentence and text embeddings.
 *   [EasyOCR](https://github.com/JaidedAI/EasyOCR): Optical Character Recognition for extracting text from images.
@@ -137,7 +141,7 @@ This project is built upon the following open-source libraries and external serv
 *   [Pandas](https://pandas.pydata.org/): Data analysis and manipulation tool.
 *   [rank-bm25](https://pypi.org/project/rank-bm25/): For BM25 retrieval algorithm.
 
-*Data & Document Processing:*
+**Data & Document Processing:**
 *   [PyPDF2](https://pypdf2.readthedocs.io/): A pure-python PDF library.
 *   [python-docx](https://python-docx.readthedocs.io/): For creating and updating Microsoft Word (.docx) files.
 *   [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/): For pulling data out of HTML and XML files.
@@ -147,21 +151,19 @@ This project is built upon the following open-source libraries and external serv
 *   [Pillow](https://python-pillow.org/): The friendly PIL fork (Python Imaging Library).
 *   [Playwright](https://playwright.dev/python/): For browser automation.
 
-*Authentication & Security:*
+**Authentication & Security:**
 *   [Google OAuth](https://developers.google.com/identity/protocols/oauth2) (implemented via [Authlib](https://authlib.org/)): For user authentication.
 *   [python-jose](https://github.com/mpdavis/python-jose): For handling JWT, JWS, JWE, JWK, JWA.
 *   [passlib[bcrypt]](https://passlib.readthedocs.io/): For password hashing.
 *   [itsdangerous](https://itsdangerous.palletsprojects.com/): For signing data to ensure its integrity.
 
-*Database & Storage:*
+**Database & Storage:**
 *   [SQLAlchemy](https://www.sqlalchemy.org/): The Python SQL Toolkit and Object Relational Mapper.
 *   [Alembic](https://alembic.sqlalchemy.org/): A lightweight database migration tool for SQLAlchemy.
 *   [Cloudinary](https://cloudinary.com/): Cloud-based image and video management service.
 
-*Utilities:*
-*   [python-dotenv](https://pypi.org/project/python-dotenv/): For managing environment variables.
+**Screen Shots:**
 
-## Photos
 ![](1.png)
 
 ![](2.png)
@@ -180,19 +182,19 @@ This project is built upon the following open-source libraries and external serv
 
 ![](9.png)
 
+![](10.jpg)
 
+![](11.jpg)
 
-
-
-
-
+**Utilities:**
+*   [python-dotenv](https://pypi.org/project/python-dotenv/): For managing environment variables.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the `LICENSE` file for details.
 
 ---
 
 <div align="center">
-  <p>Made with ❤ by the StudyAI Team</p>
+  <p>Made with ❤️ by the StudyAI Team</p>
 </div>
